@@ -192,11 +192,13 @@
   <div class="container">
     <div class="topbar">
       <strong>Soroush Soleimani</strong> &bull;
+      <a href="https://github.com/SoroushSoleimani/persian-vits-demo" target="_blank" rel="noopener">GitHub Repository</a>
+      &bull;
       <a href="https://www.kaggle.com/code/soroushsoleimani/persian-vits-gpu-train" target="_blank" rel="noopener">Kaggle GPU Training Notebook</a>
       &bull;
-      <a href="assets/five_sentences_report.json" target="_blank" rel="noopener">5-Sentence JSON Report</a>
+      <a href="output/five_sentences_report.json" target="_blank" rel="noopener">5-Sentence JSON Report</a>
       &bull;
-      <a href="assets/training_history.json" target="_blank" rel="noopener">Training Log JSON</a>
+      <a href="output/training_history.json" target="_blank" rel="noopener">Training Log JSON</a>
     </div>
 
     <h1>Persian Piper / VITS + Homo-GE2PE &amp; Neural Upgrades</h1>
@@ -216,8 +218,8 @@
     <!-- Architecture Diagram -->
     <div class="card">
       <h2>Complete Pipeline Architecture</h2>
-      <a href="assets/architecture_diagram.jpg" target="_blank" rel="noopener">
-        <img class="diagram-img" src="assets/architecture_diagram.jpg" alt="Persian VITS Fine-Tuning Pipeline Architecture">
+      <a href="output/architecture_diagram.jpg" target="_blank" rel="noopener">
+        <img class="diagram-img" src="output/architecture_diagram.jpg" alt="Persian VITS Fine-Tuning Pipeline Architecture">
       </a>
       <p class="caption">
         Click image to open full resolution. Combines <code>Homo-GE2PE (512d)</code> + 5-tag Persian Prosody Stream,
@@ -235,7 +237,7 @@
             <span>BEFORE (Baseline)</span>
             <span class="cer-pill cer-before">CER 0.2598</span>
           </div>
-          <audio controls src="audio/all_5_before.wav"></audio>
+          <audio controls src="output/all_5_before.wav"></audio>
           <div class="caption"><code>espeak-ng</code> + <code>fa_IR-amir-medium</code></div>
         </div>
         <div class="audio-block after">
@@ -243,14 +245,14 @@
             <span>AFTER (Upgraded GPU Model)</span>
             <span class="cer-pill cer-after">CER 0.2255</span>
           </div>
-          <audio controls src="audio/all_5_after.wav"></audio>
+          <audio controls src="output/all_5_after.wav"></audio>
           <div class="caption"><code>Homo-GE2PE</code> + <code>persian_vits_upgraded.onnx</code></div>
         </div>
         <div class="audio-block">
           <div class="audio-label">
             <span>Studio Target (Mana-TTS)</span>
           </div>
-          <audio controls src="audio/mana_tts_reference.wav"></audio>
+          <audio controls src="output/mana_tts_reference.wav"></audio>
           <div class="caption">Real 22.05 kHz speaker reference clip</div>
         </div>
       </div>
@@ -267,7 +269,7 @@
             <span>BEFORE (4.969s)</span>
             <span class="cer-pill cer-before">CER 0.3261</span>
           </div>
-          <audio controls src="audio/sent1_before.wav"></audio>
+          <audio controls src="output/sent1_before.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> hˈatman dˈar kˈaram mˈard bozˈorɡ ʃˈakki nˈist vˈali kˈaram kˈuːtʃak rˈuje bˈarɡ derˈaxt bˈuːd</div>
         </div>
         <div class="audio-block after">
@@ -275,7 +277,7 @@
             <span>AFTER (6.699s)</span>
             <span class="cer-pill cer-after">CER 0.1739</span>
           </div>
-          <audio controls src="audio/sent1_after.wav"></audio>
+          <audio controls src="output/sent1_after.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> hˈatman dar karˈame mˈarde bozˈorɡ ʃakkˈi nˈist, vˈali kˈerme kutʃˈak rˈuje bˈarɡe derˈaxt bˈud.</div>
         </div>
       </div>
@@ -292,7 +294,7 @@
             <span>BEFORE (4.214s)</span>
             <span class="cer-pill cer-before">CER 0.1667</span>
           </div>
-          <audio controls src="audio/sent2_before.wav"></audio>
+          <audio controls src="output/sent2_before.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> ɑn mˈard dʒavˈɑn kˈeː moʔˈallem madrˈese bˈuːd hˈatman dˈiruːz dˈar hˈɑdesˌeː mˈard</div>
         </div>
         <div class="audio-block after">
@@ -300,7 +302,7 @@
             <span>AFTER (5.828s)</span>
             <span class="cer-pill cer-after">CER 0.2381</span>
           </div>
-          <audio controls src="audio/sent2_after.wav"></audio>
+          <audio controls src="output/sent2_after.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> ˈɑn mˈarde dʒavˈɑn ke moʔallˈeme madresˈe bˈud, hˈatman dirˈuz dar hɑdesˈe mˈard.</div>
         </div>
       </div>
@@ -317,7 +319,7 @@
             <span>BEFORE (4.748s)</span>
             <span class="cer-pill cer-before">CER 0.3061</span>
           </div>
-          <audio controls src="audio/sent3_before.wav"></audio>
+          <audio controls src="output/sent3_before.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> ˈɑiˈɑ mˈeːhr ˈostɑd dˈɑneʃɡˈɑh hˈatman bɑ mˈeːhr vˈa mohˈabbat bar bˈarɡeː emtˈehɑn zˈadeː ʃˈod</div>
         </div>
         <div class="audio-block after">
@@ -325,7 +327,7 @@
             <span>AFTER (6.769s)</span>
             <span class="cer-pill cer-after">CER 0.2245</span>
           </div>
-          <audio controls src="audio/sent3_after.wav"></audio>
+          <audio controls src="output/sent3_after.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> ɑjˈɑ mˈohre ostˈɑde dɑneʃɡˈɑh hˈatman bɑ mˈehr vˈa mohabbˈat bˈar bˈarɡeje emtehˈɑn zadˈe ʃˈod?</div>
         </div>
       </div>
@@ -342,7 +344,7 @@
             <span>BEFORE (4.586s)</span>
             <span class="cer-pill cer-before">CER 0.1364</span>
           </div>
-          <audio controls src="audio/sent4_before.wav"></audio>
+          <audio controls src="output/sent4_before.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> mˈodir dʒˈadid dˈar sˈamt rijˈɑsat hˈatman bɑ dˈeq1q1at beː sˈamt ˈotɑːq1 dʒalˈasɑt rˈaft</div>
         </div>
         <div class="audio-block after">
@@ -350,7 +352,7 @@
             <span>AFTER (6.536s)</span>
             <span class="cer-pill cer-after">CER 0.2727</span>
           </div>
-          <audio controls src="audio/sent4_after.wav"></audio>
+          <audio controls src="output/sent4_after.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> modˈire dʒadˈid dar semˈate rijɑsˈat, hˈatman bɑ dˈeq1q1at be sˈamte otˈɑq1e dʒalasˈɑt rˈaft.</div>
         </div>
       </div>
@@ -367,7 +369,7 @@
             <span>BEFORE (5.039s)</span>
             <span class="cer-pill cer-before">CER 0.3636</span>
           </div>
-          <audio controls src="audio/sent5_before.wav"></audio>
+          <audio controls src="output/sent5_before.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> moʔˈallem xˈuːb pˈas az taʃˈakkor farˈɑvɑn hˈatman dˈɑstɑn ʃˈir dʒˈanɡal rɑ bɑ sˈedɑjˌeː bˈoland xˈɑnd</div>
         </div>
         <div class="audio-block after">
@@ -375,7 +377,7 @@
             <span>AFTER (6.850s)</span>
             <span class="cer-pill cer-after">CER 0.2182</span>
           </div>
-          <audio controls src="audio/sent5_after.wav"></audio>
+          <audio controls src="output/sent5_after.wav"></audio>
           <div class="ipa"><strong>IPA:</strong> moʔallˈeme xˈub pˈas az taʃakkˈore farɑvˈɑn, hˈatman dɑstˈɑne ʃˈire dʒanɡˈal rɑ bɑ sedˈɑje bolˈand xˈɑnd?</div>
         </div>
       </div>
@@ -384,7 +386,7 @@
     <!-- Visual Training & Spectrogram Evidence -->
     <div class="card">
       <h2>Training Curves &amp; 80-Bin Log-Mel Spectrograms</h2>
-      <img class="diagram-img" src="assets/training_curves.png" alt="16-Epoch VITS Training Curves and Upgrade L2 Norms">
+      <img class="diagram-img" src="output/training_curves.png" alt="16-Epoch VITS Training Curves and Upgrade L2 Norms">
       <table>
         <thead>
           <tr>
@@ -404,8 +406,8 @@
         </tbody>
       </table>
       <br>
-      <a href="assets/five_sentences_comparison.png" target="_blank" rel="noopener">
-        <img class="diagram-img" src="assets/five_sentences_comparison.png" alt="Before vs After 80-Bin Log-Mel Spectrograms">
+      <a href="output/five_sentences_comparison.png" target="_blank" rel="noopener">
+        <img class="diagram-img" src="output/five_sentences_comparison.png" alt="Before vs After 80-Bin Log-Mel Spectrograms">
       </a>
       <p class="caption">Waveform and 80-bin log-mel spectrogram comparison across all 5 evaluation sentences (22.05 kHz).</p>
     </div>
