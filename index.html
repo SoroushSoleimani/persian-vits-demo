@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persian Piper / VITS + Homo-GE2PE Fine-Tuning Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #4b5563;
+      --accent: #2563eb;
+      --green-bg: #ecfdf5;
+      --green-fg: #065f46;
+      --green-bd: #a7f3d0;
+      --red-bg: #fef2f2;
+      --red-fg: #991b1b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 36px 20px 64px;
+      line-height: 1.65;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .topbar {
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+    }
+    .topbar a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .topbar a:hover { text-decoration: underline; }
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      line-height: 1.3;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.98rem;
+      margin: 0 0 18px;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .badge.good {
+      background: var(--green-bg);
+      border-color: var(--green-bd);
+      color: var(--green-fg);
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 1.25rem;
+      margin: 0 0 10px;
+    }
+    .diagram-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    .caption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 720px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+    .audio-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .audio-block.after {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .audio-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    audio {
+      width: 100%;
+      height: 38px;
+      outline: none;
+    }
+    .fa-text {
+      font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+      font-size: 1.12rem;
+      font-weight: 600;
+      background: #f8fafc;
+      border-right: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    .focus-tag {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .ipa {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #374151;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 6px 9px;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    .cer-pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .cer-before { background: var(--red-bg); color: var(--red-fg); }
+    .cer-after { background: var(--green-bg); color: var(--green-fg); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    th { background: var(--surface); font-weight: 600; }
+    td:first-child, th:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <strong>Soroush Soleimani</strong> &bull;
+      <a href="https://www.kaggle.com/code/soroushsoleimani/persian-vits-gpu-train" target="_blank" rel="noopener">Kaggle GPU Training Notebook</a>
+      &bull;
+      <a href="assets/five_sentences_report.json" target="_blank" rel="noopener">5-Sentence JSON Report</a>
+      &bull;
+      <a href="assets/training_history.json" target="_blank" rel="noopener">Training Log JSON</a>
+    </div>
+
+    <h1>Persian Piper / VITS + Homo-GE2PE &amp; Neural Upgrades</h1>
+    <p class="subtitle">
+      End-to-end VITS + MultiPeriodDiscriminator (MPD) fine-tuning on 700 studio Persian clips from
+      <strong>MahtaFetrat/Mana-TTS</strong> with 3 zero-initialized architectural upgrades and dynamic ONNX export.
+    </p>
+
+    <div class="badges">
+      <span class="badge">CUDA T4 &middot; 16 Epochs &middot; 700 Clips</span>
+      <span class="badge">Step-0 Diff = 0.0</span>
+      <span class="badge">Homo-GE2PE (512d) + Stress/Tashdid/Ezafe/Question</span>
+      <span class="badge">Dynamic ONNX: 65.08 MB</span>
+      <span class="badge good">Mean Whisper CER: 0.2598 &rarr; 0.2255 (&minus;13.2%)</span>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="card">
+      <h2>Complete Pipeline Architecture</h2>
+      <a href="assets/architecture_diagram.jpg" target="_blank" rel="noopener">
+        <img class="diagram-img" src="assets/architecture_diagram.jpg" alt="Persian VITS Fine-Tuning Pipeline Architecture">
+      </a>
+      <p class="caption">
+        Click image to open full resolution. Combines <code>Homo-GE2PE (512d)</code> + 5-tag Persian Prosody Stream,
+        zero-initialized <code>ProsodyEnhancedEmbedding</code>, ConvNeXt-GLU <code>DurationPredictorAdapter</code>,
+        bijective <code>InvertibleFlowAttentionCoupling</code>, Cython MAS, Full Mana HiFi-GAN, and MPD adversarial training.
+      </p>
+    </div>
+
+    <!-- Combined 5 Sentences & Studio Reference -->
+    <div class="card">
+      <h2>Combined 5-Sentence Comparison &amp; Ground-Truth Reference</h2>
+      <div class="grid-3">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (Baseline)</span>
+            <span class="cer-pill cer-before">CER 0.2598</span>
+          </div>
+          <audio controls src="audio/all_5_before.wav"></audio>
+          <div class="caption"><code>espeak-ng</code> + <code>fa_IR-amir-medium</code></div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (Upgraded GPU Model)</span>
+            <span class="cer-pill cer-after">CER 0.2255</span>
+          </div>
+          <audio controls src="audio/all_5_after.wav"></audio>
+          <div class="caption"><code>Homo-GE2PE</code> + <code>persian_vits_upgraded.onnx</code></div>
+        </div>
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>Studio Target (Mana-TTS)</span>
+          </div>
+          <audio controls src="audio/mana_tts_reference.wav"></audio>
+          <div class="caption">Real 22.05 kHz speaker reference clip</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentence 1 -->
+    <div class="card">
+      <h2>Sentence 1 &mdash; <em>Tanvin</em> + Homograph (<em>kæræm-e</em> vs <em>kerm-e</em>) + <em>Tashdid</em></h2>
+      <div class="fa-text" lang="fa">حتما در کرم مرد بزرگ شکی نیست، ولی کرم کوچک روی برگ درخت بود.</div>
+      <div class="focus-tag">Focus: <code>hatman</code> + <code>karam-e</code> (generosity) vs <code>kerm-e</code> (worm) + <code>shakki</code> (gemination)</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (4.969s)</span>
+            <span class="cer-pill cer-before">CER 0.3261</span>
+          </div>
+          <audio controls src="audio/sent1_before.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> hˈatman dˈar kˈaram mˈard bozˈorɡ ʃˈakki nˈist vˈali kˈaram kˈuːtʃak rˈuje bˈarɡ derˈaxt bˈuːd</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (6.699s)</span>
+            <span class="cer-pill cer-after">CER 0.1739</span>
+          </div>
+          <audio controls src="audio/sent1_after.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> hˈatman dar karˈame mˈarde bozˈorɡ ʃakkˈi nˈist, vˈali kˈerme kutʃˈak rˈuje bˈarɡe derˈaxt bˈud.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentence 2 -->
+    <div class="card">
+      <h2>Sentence 2 &mdash; Homograph (<em>mærd-e</em> vs verb) + <em>Tashdid &amp; Ezafe</em></h2>
+      <div class="fa-text" lang="fa">آن مرد جوان که معلم مدرسه بود، حتما دیروز در حادثه مرد.</div>
+      <div class="focus-tag">Focus: <code>hatman</code> + <code>mard-e</code> vs <code>mord</code> + <code>mo'allem-e</code> (Tashdid + Ezafe)</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (4.214s)</span>
+            <span class="cer-pill cer-before">CER 0.1667</span>
+          </div>
+          <audio controls src="audio/sent2_before.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> ɑn mˈard dʒavˈɑn kˈeː moʔˈallem madrˈese bˈuːd hˈatman dˈiruːz dˈar hˈɑdesˌeː mˈard</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (5.828s)</span>
+            <span class="cer-pill cer-after">CER 0.2381</span>
+          </div>
+          <audio controls src="audio/sent2_after.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> ˈɑn mˈarde dʒavˈɑn ke moʔallˈeme madresˈe bˈud, hˈatman dirˈuz dar hɑdesˈe mˈard.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentence 3 -->
+    <div class="card">
+      <h2>Sentence 3 &mdash; Homograph (<em>mohr-e</em> vs <em>mehr</em>) + <em>Tashdid</em> + Question</h2>
+      <div class="fa-text" lang="fa">آیا مهر استاد دانشگاه حتما با مهر و محبت بر برگه امتحان زده شد؟</div>
+      <div class="focus-tag">Focus: <code>hatman</code> + <code>mohr-e</code> (stamp) vs <code>mehr</code> (affection) + <code>mohabbat</code> + Question <code>?</code></div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (4.748s)</span>
+            <span class="cer-pill cer-before">CER 0.3061</span>
+          </div>
+          <audio controls src="audio/sent3_before.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> ˈɑiˈɑ mˈeːhr ˈostɑd dˈɑneʃɡˈɑh hˈatman bɑ mˈeːhr vˈa mohˈabbat bar bˈarɡeː emtˈehɑn zˈadeː ʃˈod</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (6.769s)</span>
+            <span class="cer-pill cer-after">CER 0.2245</span>
+          </div>
+          <audio controls src="audio/sent3_after.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> ɑjˈɑ mˈohre ostˈɑde dɑneʃɡˈɑh hˈatman bɑ mˈehr vˈa mohabbˈat bˈar bˈarɡeje emtehˈɑn zadˈe ʃˈod?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentence 4 -->
+    <div class="card">
+      <h2>Sentence 4 &mdash; Homograph (<em>semat-e</em> vs <em>samt-e</em>) + <em>Tashdid</em></h2>
+      <div class="fa-text" lang="fa">مدیر جدید در سمت ریاست، حتما با دقت به سمت اتاق جلسات رفت.</div>
+      <div class="focus-tag">Focus: <code>hatman</code> + <code>semat-e</code> (role) vs <code>samt-e</code> (direction) + <code>deqqat</code></div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (4.586s)</span>
+            <span class="cer-pill cer-before">CER 0.1364</span>
+          </div>
+          <audio controls src="audio/sent4_before.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> mˈodir dʒˈadid dˈar sˈamt rijˈɑsat hˈatman bɑ dˈeq1q1at beː sˈamt ˈotɑːq1 dʒalˈasɑt rˈaft</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (6.536s)</span>
+            <span class="cer-pill cer-after">CER 0.2727</span>
+          </div>
+          <audio controls src="audio/sent4_after.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> modˈire dʒadˈid dar semˈate rijɑsˈat, hˈatman bɑ dˈeq1q1at be sˈamte otˈɑq1e dʒalasˈɑt rˈaft.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentence 5 -->
+    <div class="card">
+      <h2>Sentence 5 &mdash; Double <em>Ezafe</em> + <em>Tashdid</em> + Interrogative Contour</h2>
+      <div class="fa-text" lang="fa">معلم خوب پس از تشکر فراوان، حتما داستان شیر جنگل را با صدای بلند خواند؟</div>
+      <div class="focus-tag">Focus: <code>hatman</code> + <code>mo'allem-e</code> + <code>tashakkor-e</code> + <code>shir-e jangal</code> + Question <code>?</code></div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (5.039s)</span>
+            <span class="cer-pill cer-before">CER 0.3636</span>
+          </div>
+          <audio controls src="audio/sent5_before.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> moʔˈallem xˈuːb pˈas az taʃˈakkor farˈɑvɑn hˈatman dˈɑstɑn ʃˈir dʒˈanɡal rɑ bɑ sˈedɑjˌeː bˈoland xˈɑnd</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (6.850s)</span>
+            <span class="cer-pill cer-after">CER 0.2182</span>
+          </div>
+          <audio controls src="audio/sent5_after.wav"></audio>
+          <div class="ipa"><strong>IPA:</strong> moʔallˈeme xˈub pˈas az taʃakkˈore farɑvˈɑn, hˈatman dɑstˈɑne ʃˈire dʒanɡˈal rɑ bɑ sedˈɑje bolˈand xˈɑnd?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Training & Spectrogram Evidence -->
+    <div class="card">
+      <h2>Training Curves &amp; 80-Bin Log-Mel Spectrograms</h2>
+      <img class="diagram-img" src="assets/training_curves.png" alt="16-Epoch VITS Training Curves and Upgrade L2 Norms">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Epoch 1</th>
+            <th>Epoch 6</th>
+            <th>Epoch 12</th>
+            <th>Epoch 16 (Final)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Weighted Mel L1 Loss</td><td>20.6856</td><td>20.3603</td><td>20.3287</td><td><strong>20.2546</strong></td></tr>
+          <tr><td>KL Divergence</td><td>3.4510</td><td>3.2316</td><td>3.1671</td><td><strong>3.1206</strong></td></tr>
+          <tr><td>Duration Loss</td><td>2.1264</td><td>2.0123</td><td>1.9502</td><td><strong>1.9336</strong></td></tr>
+          <tr><td>MPD Discriminator Loss</td><td>4.0361</td><td>1.6692</td><td>1.6363</td><td><strong>1.6244</strong></td></tr>
+          <tr><td>Zero-Init Norms (P / Ctx / DP / Flow)</td><td>0.05 / 0.42 / 0.04 / 0.32</td><td>0.13 / 0.76 / 0.09 / 1.20</td><td>0.20 / 0.99 / 0.11 / 1.59</td><td><strong>0.22 / 1.08 / 0.11 / 1.70</strong></td></tr>
+        </tbody>
+      </table>
+      <br>
+      <a href="assets/five_sentences_comparison.png" target="_blank" rel="noopener">
+        <img class="diagram-img" src="assets/five_sentences_comparison.png" alt="Before vs After 80-Bin Log-Mel Spectrograms">
+      </a>
+      <p class="caption">Waveform and 80-bin log-mel spectrogram comparison across all 5 evaluation sentences (22.05 kHz).</p>
+    </div>
+  </div>
+</body>
+</html>
