@@ -1,0 +1,210 @@
+{
+  "homo_ge2pe_loaded": true,
+  "upgraded_onnx_path": "output/persian_vits_upgraded.onnx",
+  "upgraded_onnx_size_mb": 65.08,
+  "sample_rate": 22050,
+  "avg_before_asr_cer": 0.2598,
+  "avg_after_asr_cer": 0.2255,
+  "sentences": [
+    {
+      "id": 1,
+      "text": "حتما در کرم مرد بزرگ شکی نیست، ولی کرم کوچک روی برگ درخت بود.",
+      "focus": "hatman (tanvin) + homograph karam-e vs kerm-e + Tashdid (shakki)",
+      "before_espeak_ipa": "hˈatman dˈar kˈaram mˈard bozˈorɡ ʃˈakki nˈist vˈali kˈaram kˈuːtʃak rˈuje bˈarɡ derˈaxt bˈuːd",
+      "before_phoneme_ids_count": 192,
+      "before_duration_sec": 4.969,
+      "before_rms_db": -24.12,
+      "before_asr": {
+        "hyp": "هتمن در کرام مرده بزور جه شکینیست ولی کرام کوشک رویگه برده در اخبود.",
+        "cer": 0.3261,
+        "wer": 0.8571
+      },
+      "after_engine": "Homo-GE2PE + Fine-Tuned Upgraded Mana ONNX",
+      "after_raw_ge2pe": "h/tm/n d/r k/r/me1 m/rde1 bozorg $/kki nist, v/li kerme1 kuc/k ruye1 b/rge1 der/xt bud.",
+      "after_piper_ipa": "hˈatman dar karˈame mˈarde bozˈorɡ ʃakkˈi nˈist, vˈali kˈerme kutʃˈak rˈuje bˈarɡe derˈaxt bˈud.",
+      "after_phoneme_ids_count": 196,
+      "after_unmapped_symbols": [],
+      "after_duration_sec": 6.699,
+      "after_rms_db": -28.08,
+      "after_asr": {
+        "hyp": "هتما در کرام مرد بزور شکینی است ولی که مکو چک روی برگدر اخت بور",
+        "cer": 0.1739,
+        "wer": 0.7857
+      },
+      "prosody_tag_counts": {
+        "NORMAL": 162,
+        "STRESS": 26,
+        "TASHDID": 2,
+        "EZAFE": 6,
+        "QUESTION": 0
+      },
+      "context_emb_shape": [
+        1,
+        109,
+        512
+      ],
+      "before_wav": "output/sent1_before.wav",
+      "after_wav": "output/sent1_after.wav"
+    },
+    {
+      "id": 2,
+      "text": "آن مرد جوان که معلم مدرسه بود، حتما دیروز در حادثه مرد.",
+      "focus": "hatman + homograph mard-e vs mord + Tashdid+Ezafe (mo'allem-e)",
+      "before_espeak_ipa": "ɑn mˈard dʒavˈɑn kˈeː moʔˈallem madrˈese bˈuːd hˈatman dˈiruːz dˈar hˈɑdesˌeː mˈard",
+      "before_phoneme_ids_count": 170,
+      "before_duration_sec": 4.214,
+      "before_rms_db": -21.93,
+      "before_asr": {
+        "hyp": "مرد جبون که معلوم مدرسه بود هتمان دی روز در حادثه مرد.",
+        "cer": 0.1667,
+        "wer": 0.5
+      },
+      "after_engine": "Homo-GE2PE + Fine-Tuned Upgraded Mana ONNX",
+      "after_raw_ge2pe": "an m/rde1 j/van ke mo@/lleme1 m/drese bud, h/tm/n diruz d/r hadese m/rd.",
+      "after_piper_ipa": "ˈɑn mˈarde dʒavˈɑn ke moʔallˈeme madresˈe bˈud, hˈatman dirˈuz dar hɑdesˈe mˈard.",
+      "after_phoneme_ids_count": 166,
+      "after_unmapped_symbols": [],
+      "after_duration_sec": 5.828,
+      "after_rms_db": -27.78,
+      "after_asr": {
+        "hyp": "آن مرد جاوان که معلوم مدجه سبود هتفمن دی روز دا حادث مرد",
+        "cer": 0.2381,
+        "wer": 0.75
+      },
+      "prosody_tag_counts": {
+        "NORMAL": 142,
+        "STRESS": 20,
+        "TASHDID": 2,
+        "EZAFE": 2,
+        "QUESTION": 0
+      },
+      "context_emb_shape": [
+        1,
+        99,
+        512
+      ],
+      "before_wav": "output/sent2_before.wav",
+      "after_wav": "output/sent2_after.wav"
+    },
+    {
+      "id": 3,
+      "text": "آیا مهر استاد دانشگاه حتما با مهر و محبت بر برگه امتحان زده شد؟",
+      "focus": "hatman + homograph mohr-e vs mehr + Tashdid (mohabbat) + Question",
+      "before_espeak_ipa": "ˈɑiˈɑ mˈeːhr ˈostɑd dˈɑneʃɡˈɑh hˈatman bɑ mˈeːhr vˈa mohˈabbat bar bˈarɡeː emtˈehɑn zˈadeː ʃˈod",
+      "before_phoneme_ids_count": 194,
+      "before_duration_sec": 4.748,
+      "before_rms_db": -20.52,
+      "before_asr": {
+        "hyp": "با یا میحر اصلاد دانشکای حتمان با میحر محبت برورگی امتحان زده شود.",
+        "cer": 0.3061,
+        "wer": 0.7857
+      },
+      "after_engine": "Homo-GE2PE + Fine-Tuned Upgraded Mana ONNX",
+      "after_raw_ge2pe": "aya mohre1 ostade1 dane$gah h/tm/n ba mehr v/ moh/bb/t b/r b/rgeye1 emtehan z/de $od?",
+      "after_piper_ipa": "ɑjˈɑ mˈohre ostˈɑde dɑneʃɡˈɑh hˈatman bɑ mˈehr vˈa mohabbˈat bˈar bˈarɡeje emtehˈɑn zadˈe ʃˈod?",
+      "after_phoneme_ids_count": 194,
+      "after_unmapped_symbols": [],
+      "after_duration_sec": 6.769,
+      "after_rms_db": -27.18,
+      "after_asr": {
+        "hyp": "و یا مهر اصداد دانشکا هستم با مهر و محبت ببرگی ایمتحان زداشت",
+        "cer": 0.2245,
+        "wer": 0.7143
+      },
+      "prosody_tag_counts": {
+        "NORMAL": 160,
+        "STRESS": 25,
+        "TASHDID": 2,
+        "EZAFE": 4,
+        "QUESTION": 3
+      },
+      "context_emb_shape": [
+        1,
+        114,
+        512
+      ],
+      "before_wav": "output/sent3_before.wav",
+      "after_wav": "output/sent3_after.wav"
+    },
+    {
+      "id": 4,
+      "text": "مدیر جدید در سمت ریاست، حتما با دقت به سمت اتاق جلسات رفت.",
+      "focus": "hatman + homograph semat-e vs samt-e + Tashdid (deqqat)",
+      "before_espeak_ipa": "mˈodir dʒˈadid dˈar sˈamt rijˈɑsat hˈatman bɑ dˈeq1q1at beː sˈamt ˈotɑːq1 dʒalˈasɑt rˈaft",
+      "before_phoneme_ids_count": 182,
+      "before_duration_sec": 4.586,
+      "before_rms_db": -19.39,
+      "before_asr": {
+        "hyp": "مدیر جديد در سمت ریاستت حتمان بودقت بسمت اتواب جلسات رفت.",
+        "cer": 0.1364,
+        "wer": 0.5385
+      },
+      "after_engine": "Homo-GE2PE + Fine-Tuned Upgraded Mana ONNX",
+      "after_raw_ge2pe": "modire1 j/did d/r sem/te1 riyas/t, h/tm/n ba deqq/t be s/mte1 otaqe1 j/l/sat r/ft.",
+      "after_piper_ipa": "modˈire dʒadˈid dar semˈate rijɑsˈat, hˈatman bɑ dˈeq1q1at be sˈamte otˈɑq1e dʒalasˈɑt rˈaft.",
+      "after_phoneme_ids_count": 190,
+      "after_unmapped_symbols": [],
+      "after_duration_sec": 6.536,
+      "after_rms_db": -28.6,
+      "after_asr": {
+        "hyp": "مدیر جدی در سمات ریاست هت من با دقد به سمت اوطاو و جلا ساحت رف.",
+        "cer": 0.2727,
+        "wer": 0.7692
+      },
+      "prosody_tag_counts": {
+        "NORMAL": 162,
+        "STRESS": 20,
+        "TASHDID": 4,
+        "EZAFE": 4,
+        "QUESTION": 0
+      },
+      "context_emb_shape": [
+        1,
+        104,
+        512
+      ],
+      "before_wav": "output/sent4_before.wav",
+      "after_wav": "output/sent4_after.wav"
+    },
+    {
+      "id": 5,
+      "text": "معلم خوب پس از تشکر فراوان، حتما داستان شیر جنگل را با صدای بلند خواند؟",
+      "focus": "hatman + Tashdid+Ezafe (mo'allem-e, tashakkor-e) + 2x Ezafe + Question",
+      "before_espeak_ipa": "moʔˈallem xˈuːb pˈas az taʃˈakkor farˈɑvɑn hˈatman dˈɑstɑn ʃˈir dʒˈanɡal rɑ bɑ sˈedɑjˌeː bˈoland xˈɑnd",
+      "before_phoneme_ids_count": 208,
+      "before_duration_sec": 5.039,
+      "before_rms_db": -25.55,
+      "before_asr": {
+        "hyp": "مالیم خوب پزه سجکور فرووا حتما دستان شیر جنگیر رو با سدای بولن خوم",
+        "cer": 0.3636,
+        "wer": 0.7333
+      },
+      "after_engine": "Homo-GE2PE + Fine-Tuned Upgraded Mana ONNX",
+      "after_raw_ge2pe": "mo@/lleme1 xub p/s /z t/$/kkore1 f/ravan, h/tm/n dastane1 $ire1 j/ng/l ra ba sedaye1 bol/nd xand?",
+      "after_piper_ipa": "moʔallˈeme xˈub pˈas az taʃakkˈore farɑvˈɑn, hˈatman dɑstˈɑne ʃˈire dʒanɡˈal rɑ bɑ sedˈɑje bolˈand xˈɑnd?",
+      "after_phoneme_ids_count": 214,
+      "after_unmapped_symbols": [],
+      "after_duration_sec": 6.85,
+      "after_rms_db": -27.3,
+      "after_asr": {
+        "hyp": "معلوم خوب پس از تشکور فرابان هتون دستان شیر جنگر راباس دای بولند خان",
+        "cer": 0.2182,
+        "wer": 0.7333
+      },
+      "prosody_tag_counts": {
+        "NORMAL": 178,
+        "STRESS": 23,
+        "TASHDID": 4,
+        "EZAFE": 6,
+        "QUESTION": 3
+      },
+      "context_emb_shape": [
+        1,
+        129,
+        512
+      ],
+      "before_wav": "output/sent5_before.wav",
+      "after_wav": "output/sent5_after.wav"
+    }
+  ]
+}
