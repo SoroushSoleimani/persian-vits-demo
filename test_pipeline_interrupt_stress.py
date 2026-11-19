@@ -23,8 +23,12 @@ from test_pipeline import MANA_ACTIVE_PHONEME_MAP
 from tts_interrupt_stress import (
     TARGET_SR,
     InterruptibleTTSSynthesizer,
+    _stress_word_to_pairs,
+    _tashdid_word_to_pairs,
     analyze_acoustic_prosody,
+    build_carrier_sentence_streams,
     dataset_word_to_ge2pe,
+    normalize_audio_peak,
     split_clauses_with_pauses,
     stress_word_to_streams,
     tashdid_word_to_streams,
@@ -226,74 +230,136 @@ class TestRealONNXInterruptAndStress(unittest.TestCase):
                 ctx_dim = inp.shape[2]
 
         def run_onnx_ids(p_ids: List[int], pr_ids: List[int]) -> np.ndarray:
+            if hasattr(ort, "set_seed"):
+                ort.set_seed(42)
             x = np.expand_dims(np.asarray(p_ids, dtype=np.int64), 0)
             xl = np.array([x.shape[1]], dtype=np.int64)
             pr = np.expand_dims(np.asarray(pr_ids, dtype=np.int64), 0)
             ctx = align_context_embedding(None, x.shape[1], context_dim=ctx_dim)
             ctx_np = ctx.numpy() if hasattr(ctx, "numpy") else np.asarray(ctx, dtype=np.float32)
-            scales = np.array([0.667, 1.0, 0.8], dtype=np.float32)
+            scales = np.array([0.5, 1.0, 0.35], dtype=np.float32)
             audio = sess.run(
                 None,
                 {"input": x, "input_lengths": xl, "prosody_ids": pr, "context_emb": ctx_np, "scales": scales},
             )[0]
-            return np.squeeze(audio).astype(np.float32)
+            return normalize_audio_peak(np.squeeze(audio).astype(np.float32), target_peak=0.85)
 
-        # Word stress variants on real ONNX model
+        def assert_clean_speech(metrics: Dict[str, Any], label: str) -> None:
+            self.assertGreater(metrics["rms_db"], -25.0, f"{label} RMS too low: {metrics}")
+            self.assertGreater(metrics["mean_f0_hz"], 130.0, f"{label} F0 collapsed: {metrics}")
+            self.assertGreater(metrics["duration_sec"], 1.2, f"{label} too short: {metrics}")
+
+        # Word stress variants synthesized inside natural carrier sentences on real ONNX model
         word_cases = [
-            ("hatman_stress1", "h/tm/n", "first_vowel"),
-            ("hatman_stress2", "h/tm/n", "second_vowel"),
-            ("hatman_none", "h/tm/n", "none"),
-            ("hala_stress1", "hala", "first_vowel"),
-            ("hala_stress2", "hala", "second_vowel"),
-            ("hala_none", "hala", "none"),
+            (
+                "hatman",
+                "h/tm/n",
+                ["u"],
+                ["d/r", "j/l/seye1", "f/rda", "$erk/t", "mikon/d"],
+                "او حتما در جلسه فردا شرکت می‌کند.",
+            ),
+            (
+                "hala",
+                "hala",
+                ["v/li"],
+                ["aseman", "kamel/n", "saf", "/st"],
+                "ولی حالا آسمان کاملا صاف است.",
+            ),
         ]
         word_metrics: Dict[str, Any] = {}
-        for label, ge2pe_tok, mode in word_cases:
-            syms, ids, tags = stress_word_to_streams(g2p, ge2pe_tok, stress_mode=mode)
-            wav = run_onnx_ids(ids, tags)
-            self.assertGreater(len(wav), 2000)
-            self.assertFalse(bool(np.isnan(wav).any() or np.isinf(wav).any()))
-            _save_wav_pcm16(os.path.join("output", f"pipeline_stress_{label}.wav"), wav)
-            word_metrics[label] = {
-                "ipa": "".join(s for s in syms if s not in ("^", "$", "_")),
-                **analyze_acoustic_prosody(wav),
-            }
+        for slug, ge2pe_tok, prefix_toks, suffix_toks, carrier_fa in word_cases:
+            for suffix_lbl, mode in (("stress1", "first_vowel"), ("stress2", "second_vowel"), ("none", "none")):
+                label = f"{slug}_{suffix_lbl}"
+                w_syms, _, _ = stress_word_to_streams(g2p, ge2pe_tok, stress_mode=mode)
+                t_pairs = _stress_word_to_pairs(g2p, ge2pe_tok, stress_mode=mode)
+                _, ids, tags = build_carrier_sentence_streams(g2p, prefix_toks, t_pairs, suffix_toks)
+                wav = run_onnx_ids(ids, tags)
+                self.assertGreater(len(wav), 2000)
+                self.assertFalse(bool(np.isnan(wav).any() or np.isinf(wav).any()))
+                _save_wav_pcm16(os.path.join("output", f"pipeline_stress_{label}.wav"), wav)
+                m = {
+                    "ipa": "".join(s for s in w_syms if s not in ("^", "$", "_")),
+                    "carrier_sentence": carrier_fa,
+                    **analyze_acoustic_prosody(wav),
+                }
+                assert_clean_speech(m, label)
+                word_metrics[label] = m
 
-        # Doubled-letter Tashdid (gemination) variants from G2P dataset notation on real ONNX model
+        # Doubled-letter Tashdid (gemination) variants from G2P dataset inside carrier sentences
         tashdid_cases = [
-            ("deqqat", "deqqat"),
-            ("moallem", "mo?allem"),
-            ("tafakkor", "tafakkor"),
-            ("zarrat", "zarrAt"),
+            (
+                "deqqat",
+                "deqqat",
+                ["u", "ba"],
+                ["f/ravan", "kar", "k/rd"],
+                True,
+                "او با دقت فراوان کار کرد.",
+            ),
+            (
+                "moallem",
+                "mo?allem",
+                ["an"],
+                ["m/drese", "besyar", "delsuz", "/st"],
+                True,
+                "آن معلم مدرسه بسیار دلسوز است.",
+            ),
+            (
+                "tafakkor",
+                "tafakkor",
+                ["u", "ba"],
+                ["/miq", "sox/n", "goft"],
+                True,
+                "او با تفکر عمیق سخن گفت.",
+            ),
+            (
+                "zarrat",
+                "zarrAt",
+                ["d/r", "fizike1"],
+                ["ener;i", "/h/mmiyy/t", "dar/d"],
+                False,
+                "در فیزیک ذرات انرژی اهمیت دارد.",
+            ),
         ]
         tashdid_metrics: Dict[str, Any] = {}
-        for slug, ds_tok in tashdid_cases:
+        for slug, ds_tok, prefix_toks, suffix_toks, has_ez, carrier_fa in tashdid_cases:
             for g_mode in ("doubled", "single"):
                 label = f"{slug}_{g_mode}"
-                syms, ids, tags = tashdid_word_to_streams(
+                w_syms, _, w_tags = tashdid_word_to_streams(
                     g2p, ds_tok, gemination_mode=g_mode, dataset_notation=True
+                )
+                t_pairs = _tashdid_word_to_pairs(
+                    g2p, ds_tok, gemination_mode=g_mode, dataset_notation=True
+                )
+                _, ids, tags = build_carrier_sentence_streams(
+                    g2p, prefix_toks, t_pairs, suffix_toks, target_has_ezafe=has_ez
                 )
                 wav = run_onnx_ids(ids, tags)
                 self.assertGreater(len(wav), 2000)
                 self.assertFalse(bool(np.isnan(wav).any() or np.isinf(wav).any()))
                 _save_wav_pcm16(os.path.join("output", f"pipeline_tashdid_{label}.wav"), wav)
-                tashdid_metrics[label] = {
+                m = {
                     "dataset_token": ds_tok,
                     "gemination_mode": g_mode,
-                    "ipa": "".join(s for s in syms if s not in ("^", "$", "_")),
-                    "tashdid_tag_count": int(tags.count(PROSODY_TAGS["TASHDID"])),
+                    "ipa": "".join(s for s in w_syms if s not in ("^", "$", "_")),
+                    "carrier_sentence": carrier_fa,
+                    "tashdid_tag_count": int(w_tags.count(PROSODY_TAGS["TASHDID"])),
                     **analyze_acoustic_prosody(wav),
                 }
+                assert_clean_speech(m, label)
+                tashdid_metrics[label] = m
 
-        # Real ONNX Interruptible synthesis on multi-clause sentence
+        # Real ONNX Interruptible synthesis on multi-clause sentence (with terminal '.' per clause)
         def synth_clause(clause_txt: str) -> np.ndarray:
+            clause_for_g2p = (
+                clause_txt if clause_txt.endswith((".", "?", "؟", "!")) else clause_txt + "."
+            )
             _, ids, tags, _, _ = g2p.text_to_aligned_streams_with_context(
-                clause_txt, intersperse_blank=True, prefer_homo_ge2pe=False
+                clause_for_g2p, intersperse_blank=True, prefer_homo_ge2pe=False
             )
             return run_onnx_ids(ids, tags)
 
         ctrl = InterruptibleTTSSynthesizer(synth_clause)
-        multi_text = "مدیر جدید در سمت ریاست، حتما با دقت... به سمت اتاق جلسات رفت."
+        multi_text = "مدیر جدید در سمت ریاست، حتما با دقت فراوان... به سمت اتاق جلسات رفت."
         res_full = ctrl.synthesize_stream(multi_text)
         _save_wav_pcm16(os.path.join("output", "pipeline_interrupt_full.wav"), res_full.audio)
 
@@ -311,25 +377,30 @@ class TestRealONNXInterruptAndStress(unittest.TestCase):
         self.assertEqual(res_cut.completed_chunks, 1)
         self.assertLess(len(res_cut.audio), len(res_full.audio))
 
+        int_full_metrics = {
+            "completed_chunks": res_full.completed_chunks,
+            "total_chunks": res_full.total_chunks,
+            "interrupted": res_full.interrupted,
+            "elapsed_ms": res_full.elapsed_ms,
+            **analyze_acoustic_prosody(res_full.audio),
+        }
+        int_cut_metrics = {
+            "completed_chunks": res_cut.completed_chunks,
+            "total_chunks": res_cut.total_chunks,
+            "interrupted": res_cut.interrupted,
+            "elapsed_ms": res_cut.elapsed_ms,
+            **analyze_acoustic_prosody(res_cut.audio),
+        }
+        assert_clean_speech(int_full_metrics, "interrupt_full")
+        assert_clean_speech(int_cut_metrics, "interrupt_cut_after_chunk0")
+
         report = {
             "onnx_path": onnx_path,
             "context_dim": ctx_dim,
             "word_stress_metrics": word_metrics,
             "tashdid_metrics": tashdid_metrics,
-            "interrupt_full": {
-                "completed_chunks": res_full.completed_chunks,
-                "total_chunks": res_full.total_chunks,
-                "interrupted": res_full.interrupted,
-                "elapsed_ms": res_full.elapsed_ms,
-                **analyze_acoustic_prosody(res_full.audio),
-            },
-            "interrupt_cut_after_chunk0": {
-                "completed_chunks": res_cut.completed_chunks,
-                "total_chunks": res_cut.total_chunks,
-                "interrupted": res_cut.interrupted,
-                "elapsed_ms": res_cut.elapsed_ms,
-                **analyze_acoustic_prosody(res_cut.audio),
-            },
+            "interrupt_full": int_full_metrics,
+            "interrupt_cut_after_chunk0": int_cut_metrics,
         }
         with open(os.path.join("output", "pipeline_interrupt_stress_report.json"), "w", encoding="utf-8") as f:
             json.dump(report, f, ensure_ascii=False, indent=2)

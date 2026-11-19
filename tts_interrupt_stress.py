@@ -154,6 +154,17 @@ def _apply_edge_fade(wav: np.ndarray, sr: int = TARGET_SR, fade_ms: float = 5.0)
     return np.clip(out, -1.0, 1.0)
 
 
+def normalize_audio_peak(wav: np.ndarray, target_peak: float = 0.85) -> np.ndarray:
+    """Scale synthesized speech to a consistent audible peak while preventing clipping."""
+    out = np.asarray(wav, dtype=np.float32).copy()
+    if len(out) == 0:
+        return out
+    peak = float(np.max(np.abs(out)))
+    if peak > 1e-4:
+        out = out * (float(target_peak) / peak)
+    return np.clip(out, -1.0, 1.0)
+
+
 def analyze_acoustic_prosody(wav: np.ndarray, sr: int = TARGET_SR) -> Dict[str, float]:
     """Compute duration, RMS energy (dB), peak, and voiced fundamental frequency (F0 Hz)."""
     arr = np.asarray(wav, dtype=np.float32).flatten()
@@ -199,26 +210,18 @@ def analyze_acoustic_prosody(wav: np.ndarray, sr: int = TARGET_SR) -> Dict[str, 
     }
 
 
-def stress_word_to_streams(
+def _stress_word_to_pairs(
     g2p: Any,
     ge2pe_token: str,
     stress_mode: str = "auto",
-) -> Tuple[List[str], List[int], List[int]]:
-    """Build (phonemes_out, phoneme_ids, prosody_ids) for one word with controlled stress.
-
-    stress_mode:
-      - 'auto': Use `PersianG2PProsody._ge2pe_word_to_pairs` natural stress placement.
-      - 'first_vowel': Place `'ˈ'` + STRESS tag before the 1st vowel.
-      - 'second_vowel': Place `'ˈ'` + STRESS tag before the 2nd vowel (if >=2 vowels).
-      - 'none': Remove `'ˈ'` and downgrade STRESS tags to NORMAL.
-    """
+) -> List[Tuple[str, int]]:
+    """Build `(IPA, prosody_tag)` pairs for one word with controlled lexical stress."""
     if stress_mode not in ("auto", "first_vowel", "second_vowel", "none"):
         raise ValueError(f"Unsupported stress_mode: {stress_mode!r}")
 
     base_pairs = g2p._ge2pe_word_to_pairs(ge2pe_token, is_final_question_word=False)
 
     if stress_mode != "auto":
-        # Strip existing explicit stress mark & reset STRESS -> NORMAL first
         clean_pairs: List[Tuple[str, int]] = []
         for sym, tag in base_pairs:
             if sym == "ˈ":
@@ -246,7 +249,47 @@ def stress_word_to_streams(
                 clean_pairs.insert(target_pos, ("ˈ", PROSODY_TAGS["STRESS"]))
         base_pairs = clean_pairs
 
-    return _pairs_to_piper_streams(g2p, base_pairs)
+    return base_pairs
+
+
+def stress_word_to_streams(
+    g2p: Any,
+    ge2pe_token: str,
+    stress_mode: str = "auto",
+) -> Tuple[List[str], List[int], List[int]]:
+    """Build (phonemes_out, phoneme_ids, prosody_ids) for one word with controlled stress.
+
+    stress_mode:
+      - 'auto': Use `PersianG2PProsody._ge2pe_word_to_pairs` natural stress placement.
+      - 'first_vowel': Place `'ˈ'` + STRESS tag before the 1st vowel.
+      - 'second_vowel': Place `'ˈ'` + STRESS tag before the 2nd vowel (if >=2 vowels).
+      - 'none': Remove `'ˈ'` and downgrade STRESS tags to NORMAL.
+    """
+    return _pairs_to_piper_streams(g2p, _stress_word_to_pairs(g2p, ge2pe_token, stress_mode))
+
+
+def _tashdid_word_to_pairs(
+    g2p: Any,
+    token: str,
+    gemination_mode: str = "doubled",
+    dataset_notation: bool = False,
+) -> List[Tuple[str, int]]:
+    """Build `(IPA, prosody_tag)` pairs for doubled-letter Tashdid verification."""
+    if gemination_mode not in ("doubled", "doubled_normal_tag", "single"):
+        raise ValueError(f"Unsupported gemination_mode: {gemination_mode!r}")
+
+    ge2pe_tok = dataset_word_to_ge2pe(token) if dataset_notation else token
+    if gemination_mode == "single":
+        ge2pe_tok = collapse_doubled_consonants(ge2pe_tok)
+
+    base_pairs = g2p._ge2pe_word_to_pairs(ge2pe_tok, is_final_question_word=False)
+    if gemination_mode == "doubled_normal_tag":
+        base_pairs = [
+            (sym, PROSODY_TAGS["NORMAL"] if tag == PROSODY_TAGS["TASHDID"] else tag)
+            for sym, tag in base_pairs
+        ]
+
+    return base_pairs
 
 
 def tashdid_word_to_streams(
@@ -262,21 +305,40 @@ def tashdid_word_to_streams(
       - 'doubled_normal_tag': Keep doubled consonants but downgrade TASHDID tags to NORMAL (0).
       - 'single': Collapse doubled consonants (`CC` -> `C`) with no TASHDID tags.
     """
-    if gemination_mode not in ("doubled", "doubled_normal_tag", "single"):
-        raise ValueError(f"Unsupported gemination_mode: {gemination_mode!r}")
-
-    ge2pe_tok = dataset_word_to_ge2pe(token) if dataset_notation else token
-    if gemination_mode == "single":
-        ge2pe_tok = collapse_doubled_consonants(ge2pe_tok)
-
-    base_pairs = g2p._ge2pe_word_to_pairs(ge2pe_tok, is_final_question_word=False)
-    if gemination_mode == "doubled_normal_tag":
-        base_pairs = [
-            (sym, PROSODY_TAGS["NORMAL"] if tag == PROSODY_TAGS["TASHDID"] else tag)
-            for sym, tag in base_pairs
-        ]
-
+    base_pairs = _tashdid_word_to_pairs(
+        g2p, token, gemination_mode=gemination_mode, dataset_notation=dataset_notation
+    )
     return _pairs_to_piper_streams(g2p, base_pairs)
+
+
+def build_carrier_sentence_streams(
+    g2p: Any,
+    prefix_ge2pe: List[str],
+    target_pairs: List[Tuple[str, int]],
+    suffix_ge2pe: List[str],
+    target_has_ezafe: bool = False,
+) -> Tuple[List[str], List[int], List[int]]:
+    """Embed a controlled target word inside a full Persian sentence ending with '.' before EOS."""
+    word_groups: List[List[Tuple[str, int]]] = [
+        g2p._ge2pe_word_to_pairs(tok, is_final_question_word=False) for tok in prefix_ge2pe
+    ]
+    t_pairs = list(target_pairs)
+    if target_has_ezafe:
+        t_pairs.append(("e", PROSODY_TAGS["EZAFE"]))
+    word_groups.append(t_pairs)
+    word_groups.extend(
+        g2p._ge2pe_word_to_pairs(tok, is_final_question_word=False) for tok in suffix_ge2pe
+    )
+
+    sentence_pairs: List[Tuple[str, int]] = []
+    for idx, grp in enumerate(word_groups):
+        if idx > 0:
+            sentence_pairs.append((" ", PROSODY_TAGS["NORMAL"]))
+        sentence_pairs.extend(grp)
+    if "." in g2p.phoneme_id_map:
+        sentence_pairs.append((".", PROSODY_TAGS["NORMAL"]))
+
+    return _pairs_to_piper_streams(g2p, sentence_pairs)
 
 
 class InterruptibleTTSSynthesizer:
