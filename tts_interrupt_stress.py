@@ -6,6 +6,9 @@ Provides:
     interruption pauses (`,`, `;`, `...`, `-`).
   - `stress_word_to_streams`: Controlled lexical stress positioning (`auto`,
     `first_vowel`, `second_vowel`, `none`) emitting Piper IPA + `STRESS` tags.
+  - `tashdid_word_to_streams`: Doubled-letter gemination (`doubled`,
+    `doubled_normal_tag`, `single`) & G2P dataset Pinglish converter emitting
+    Piper IPA + `TASHDID` (`tag=2`) tags.
   - `analyze_acoustic_prosody`: Pure-NumPy F0 (pitch Hz), RMS dB, and duration metrics.
 """
 
@@ -37,6 +40,60 @@ PAUSE_MS_BY_PUNCT = {
 }
 
 VOWEL_IPA_CHARS = set("aɑeɛiouæɒː")
+GE2PE_CONSONANTS_SET = set("bpjdrzs$qklmnfthxvcg;@yw")
+
+
+def dataset_word_to_ge2pe(dataset_token: str) -> str:
+    """Convert G2P-dataset Pinglish token into Homo-GE2PE notation preserving doubled consonants.
+
+    Matches `homograph_dataset_clean_v2.csv` conventions where doubled letters (e.g.
+    `zarrAt`, `deqqat`, `tafakkore`, `moallem`, `fa??Al`) encode Tashdid gemination.
+    """
+    tok = dataset_token.strip()
+    while tok.endswith("?"):
+        tok = tok[:-1]
+    if tok.startswith("?") and len(tok) > 1 and tok[1] != "?":
+        tok = tok[1:]
+
+    pinglish_map = {"A": "a", "a": "/", "S": "$", "C": "c", "Z": ";", "?": "@", "w": "v"}
+    out: List[str] = []
+    for ch in tok:
+        if ch in pinglish_map:
+            out.append(pinglish_map[ch])
+        elif "A" <= ch <= "Z":
+            out.append(ch.lower())
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def collapse_doubled_consonants(ge2pe_token: str) -> str:
+    """Collapse consecutive identical GE2PE consonants (e.g. `deqq/t` -> `deq/t`) for A/B testing."""
+    out: List[str] = []
+    for ch in ge2pe_token:
+        if out and ch == out[-1] and ch in GE2PE_CONSONANTS_SET:
+            continue
+        out.append(ch)
+    return "".join(out)
+
+
+def _pairs_to_piper_streams(
+    g2p: Any, base_pairs: List[Tuple[str, int]]
+) -> Tuple[List[str], List[int], List[int]]:
+    """Wrap word (IPA, tag) pairs with BOS/EOS and PAD-interspersing for Piper ONNX."""
+    full_pairs = [(BOS, PROSODY_TAGS["NORMAL"])] + base_pairs + [(EOS, PROSODY_TAGS["NORMAL"])]
+    syms_out: List[str] = [PAD]
+    ids_out: List[int] = [g2p.pad_id]
+    tags_out: List[int] = [PROSODY_TAGS["NORMAL"]]
+    for sym, tag in full_pairs:
+        for sub in g2p._split_ipa_for_piper(sym):
+            syms_out.append(sub)
+            ids_out.append(g2p.phoneme_id_map.get(sub, g2p.pad_id))
+            tags_out.append(tag)
+            syms_out.append(PAD)
+            ids_out.append(g2p.pad_id)
+            tags_out.append(PROSODY_TAGS["NORMAL"])
+    return syms_out, ids_out, tags_out
 
 
 @dataclass
@@ -189,19 +246,37 @@ def stress_word_to_streams(
                 clean_pairs.insert(target_pos, ("ˈ", PROSODY_TAGS["STRESS"]))
         base_pairs = clean_pairs
 
-    full_pairs = [(BOS, PROSODY_TAGS["NORMAL"])] + base_pairs + [(EOS, PROSODY_TAGS["NORMAL"])]
-    syms_out: List[str] = [PAD]
-    ids_out: List[int] = [g2p.pad_id]
-    tags_out: List[int] = [PROSODY_TAGS["NORMAL"]]
-    for sym, tag in full_pairs:
-        for sub in g2p._split_ipa_for_piper(sym):
-            syms_out.append(sub)
-            ids_out.append(g2p.phoneme_id_map.get(sub, g2p.pad_id))
-            tags_out.append(tag)
-            syms_out.append(PAD)
-            ids_out.append(g2p.pad_id)
-            tags_out.append(PROSODY_TAGS["NORMAL"])
-    return syms_out, ids_out, tags_out
+    return _pairs_to_piper_streams(g2p, base_pairs)
+
+
+def tashdid_word_to_streams(
+    g2p: Any,
+    token: str,
+    gemination_mode: str = "doubled",
+    dataset_notation: bool = False,
+) -> Tuple[List[str], List[int], List[int]]:
+    """Build (phonemes_out, phoneme_ids, prosody_ids) for doubled-letter Tashdid verification.
+
+    gemination_mode:
+      - 'doubled': Keep doubled consonants as geminated pair + `PROSODY_TAGS['TASHDID']` (2).
+      - 'doubled_normal_tag': Keep doubled consonants but downgrade TASHDID tags to NORMAL (0).
+      - 'single': Collapse doubled consonants (`CC` -> `C`) with no TASHDID tags.
+    """
+    if gemination_mode not in ("doubled", "doubled_normal_tag", "single"):
+        raise ValueError(f"Unsupported gemination_mode: {gemination_mode!r}")
+
+    ge2pe_tok = dataset_word_to_ge2pe(token) if dataset_notation else token
+    if gemination_mode == "single":
+        ge2pe_tok = collapse_doubled_consonants(ge2pe_tok)
+
+    base_pairs = g2p._ge2pe_word_to_pairs(ge2pe_tok, is_final_question_word=False)
+    if gemination_mode == "doubled_normal_tag":
+        base_pairs = [
+            (sym, PROSODY_TAGS["NORMAL"] if tag == PROSODY_TAGS["TASHDID"] else tag)
+            for sym, tag in base_pairs
+        ]
+
+    return _pairs_to_piper_streams(g2p, base_pairs)
 
 
 class InterruptibleTTSSynthesizer:

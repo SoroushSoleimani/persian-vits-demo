@@ -24,8 +24,10 @@ from tts_interrupt_stress import (
     TARGET_SR,
     InterruptibleTTSSynthesizer,
     analyze_acoustic_prosody,
+    dataset_word_to_ge2pe,
     split_clauses_with_pauses,
     stress_word_to_streams,
+    tashdid_word_to_streams,
 )
 
 try:
@@ -94,6 +96,54 @@ class TestStressInWords(unittest.TestCase):
 
         _, _, tags_none = stress_word_to_streams(self.g2p, "hala", stress_mode="none")
         self.assertNotIn(PROSODY_TAGS["STRESS"], tags_none)
+
+
+class TestTashdidInWords(unittest.TestCase):
+    """Verify G2P doubled-letter convention maps directly to TTS Tashdid (tag=2)."""
+
+    def setUp(self):
+        self.g2p = PersianG2PProsody()
+        self.g2p.phoneme_id_map = dict(MANA_ACTIVE_PHONEME_MAP)
+
+    def test_dataset_doubled_letters_trigger_tashdid_tag(self):
+        # Words in `homograph_dataset_clean_v2.csv` encode Tashdid by doubling letters
+        samples = [
+            ("zarrAt", "zarrˈɑt", 2),
+            ("tafakkor", "tafakkˈor", 2),
+            ("tafakkore1", "tafakkˈore", 2),
+            ("nazariyyAte1", "nazarijjˈɑte", 2),
+            ("fa??Al", "faʔʔˈɑl", 2),
+            ("deqqat", "dˈeq1q1at", 2),
+            ("Sakki", "ʃakkˈi", 2),
+        ]
+        for ds_tok, expected_ipa, min_tash in samples:
+            syms, ids, tags = tashdid_word_to_streams(
+                self.g2p, ds_tok, gemination_mode="doubled", dataset_notation=True
+            )
+            self.assertEqual(len(syms), len(ids))
+            self.assertEqual(len(ids), len(tags))
+            ipa = "".join(s for s in syms if s not in ("^", "$", "_"))
+            self.assertEqual(ipa, expected_ipa)
+            self.assertGreaterEqual(
+                tags.count(PROSODY_TAGS["TASHDID"]),
+                min_tash,
+                f"Expected TASHDID tag count >= {min_tash} for {ds_tok!r} -> {ipa}, tags={tags}",
+            )
+
+    def test_tashdid_doubled_vs_single_modes(self):
+        self.assertEqual(dataset_word_to_ge2pe("fa??Al"), "f/@@al")
+        for tok in ("deqq/t", "mo@/llem", "$/kki", "t/f/kkor"):
+            s_dbl, _, t_dbl = tashdid_word_to_streams(self.g2p, tok, gemination_mode="doubled")
+            s_tag0, _, t_tag0 = tashdid_word_to_streams(
+                self.g2p, tok, gemination_mode="doubled_normal_tag"
+            )
+            s_sgl, _, t_sgl = tashdid_word_to_streams(self.g2p, tok, gemination_mode="single")
+
+            self.assertGreaterEqual(t_dbl.count(PROSODY_TAGS["TASHDID"]), 2)
+            self.assertEqual(t_tag0.count(PROSODY_TAGS["TASHDID"]), 0)
+            self.assertEqual(s_dbl, s_tag0)
+            self.assertEqual(t_sgl.count(PROSODY_TAGS["TASHDID"]), 0)
+            self.assertLess(len(s_sgl), len(s_dbl))
 
 
 class TestInterruptInTTS(unittest.TestCase):
@@ -209,6 +259,32 @@ class TestRealONNXInterruptAndStress(unittest.TestCase):
                 **analyze_acoustic_prosody(wav),
             }
 
+        # Doubled-letter Tashdid (gemination) variants from G2P dataset notation on real ONNX model
+        tashdid_cases = [
+            ("deqqat", "deqqat"),
+            ("moallem", "mo?allem"),
+            ("tafakkor", "tafakkor"),
+            ("zarrat", "zarrAt"),
+        ]
+        tashdid_metrics: Dict[str, Any] = {}
+        for slug, ds_tok in tashdid_cases:
+            for g_mode in ("doubled", "single"):
+                label = f"{slug}_{g_mode}"
+                syms, ids, tags = tashdid_word_to_streams(
+                    g2p, ds_tok, gemination_mode=g_mode, dataset_notation=True
+                )
+                wav = run_onnx_ids(ids, tags)
+                self.assertGreater(len(wav), 2000)
+                self.assertFalse(bool(np.isnan(wav).any() or np.isinf(wav).any()))
+                _save_wav_pcm16(os.path.join("output", f"pipeline_tashdid_{label}.wav"), wav)
+                tashdid_metrics[label] = {
+                    "dataset_token": ds_tok,
+                    "gemination_mode": g_mode,
+                    "ipa": "".join(s for s in syms if s not in ("^", "$", "_")),
+                    "tashdid_tag_count": int(tags.count(PROSODY_TAGS["TASHDID"])),
+                    **analyze_acoustic_prosody(wav),
+                }
+
         # Real ONNX Interruptible synthesis on multi-clause sentence
         def synth_clause(clause_txt: str) -> np.ndarray:
             _, ids, tags, _, _ = g2p.text_to_aligned_streams_with_context(
@@ -239,6 +315,7 @@ class TestRealONNXInterruptAndStress(unittest.TestCase):
             "onnx_path": onnx_path,
             "context_dim": ctx_dim,
             "word_stress_metrics": word_metrics,
+            "tashdid_metrics": tashdid_metrics,
             "interrupt_full": {
                 "completed_chunks": res_full.completed_chunks,
                 "total_chunks": res_full.total_chunks,

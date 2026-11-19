@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pipeline Test: Interrupt Handling &amp; Word Stress in Persian TTS</title>
+  <title>Pipeline Test: Interrupt, Tashdid (Doubled Letters) &amp; Word Stress in Persian TTS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
     .topbar { margin-bottom: 18px; font-size: 0.92rem; display: flex; flex-wrap: wrap; gap: 10px; }
     .topbar a { color: var(--accent); text-decoration: none; font-weight: 500; }
     .topbar a:hover { text-decoration: underline; }
-    h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 8px; line-height: 1.3; }
+    h1 { font-size: 1.82rem; font-weight: 700; margin: 0 0 8px; line-height: 1.3; }
     .subtitle { color: var(--muted); font-size: 0.98rem; margin: 0 0 18px; }
     .badges {
       display: flex;
@@ -62,10 +62,17 @@
       padding: 22px 24px;
       margin-bottom: 24px;
     }
-    .card h2 { font-size: 1.22rem; margin: 0 0 10px; }
+    .card h2 { font-size: 1.2rem; margin: 0 0 10px; }
+    .card-desc { color: var(--muted); font-size: 0.92rem; margin: 0 0 14px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
     @media (max-width: 760px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    .pair-row {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .pair-row:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
     .audio-block {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -115,7 +122,7 @@
       color: var(--green-fg);
     }
     .pill.warn { background: #fef3c7; color: var(--amber-fg); }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 8px; }
     th, td { padding: 8px 10px; border: 1px solid var(--border); text-align: center; }
     th { background: var(--surface); font-weight: 600; }
     td:first-child, th:first-child { text-align: left; }
@@ -130,23 +137,24 @@
       <span>&bull;</span>
       <a href="https://github.com/SoroushSoleimani/persian-vits-demo/tree/pipeline-test-interrupt-stress" target="_blank" rel="noopener">Branch: <code>pipeline-test-interrupt-stress</code></a>
       <span>&bull;</span>
-      <a href="https://www.kaggle.com/code/soroushsoleimani/persian-vits-interrupt-stress-test" target="_blank" rel="noopener">Kaggle Test Run</a>
+      <a href="https://www.kaggle.com/code/soroushsoleimani/persian-vits-interrupt-tashdid-stress" target="_blank" rel="noopener">Kaggle Run (12/12 OK)</a>
       <span>&bull;</span>
       <a href="../output/pipeline_interrupt_stress_report.json" target="_blank" rel="noopener">JSON Report</a>
     </div>
 
-    <h1>Pipeline Test: Interrupt Handling &amp; Stress in Words in TTS Module</h1>
+    <h1>Pipeline Test: Interrupt, Tashdid (Doubled Letters) &amp; Word Stress in TTS</h1>
     <p class="subtitle">
-      End-to-end verification of <code>InterruptibleTTSSynthesizer</code> (clause streaming, prosodic pause injection,
-      <code>threading.Event</code> mid-utterance barge-in cancellation, and recovery) alongside lexical word-stress placement
-      (<code>ˈ</code> + <code>PROSODY_TAGS["STRESS"]</code>) executed against <code>output/persian_vits_upgraded.onnx</code>.
+      End-to-end verification of <code>InterruptibleTTSSynthesizer</code> (clause streaming &amp; <code>threading.Event</code>
+      barge-in cancellation), G2P-dataset <strong>doubled-letter Tashdid</strong> (<code>CC</code> &rarr; repeated IPA +
+      <code>PROSODY_TAGS["TASHDID"] = 2</code>), and lexical stress (<code>ˈ</code> + <code>STRESS = 1</code>) executed
+      against <code>output/persian_vits_upgraded.onnx</code>.
     </p>
 
     <div class="badges">
-      <span class="badge good">Kaggle Suite: 10 / 10 Passed (0 Skipped)</span>
-      <span class="badge">Runtime: 25.94s (VITS + MPD + ONNX)</span>
-      <span class="badge">Barge-In Cut Latency: 231.03 ms vs 589.40 ms</span>
-      <span class="badge">5 ms Edge Fade (Zero Clicks / NaN)</span>
+      <span class="badge good">Kaggle Suite: 12 / 12 Passed (0 Skipped)</span>
+      <span class="badge">Runtime: 25.57s (VITS + MPD + ONNX)</span>
+      <span class="badge">G2P CSV Coverage: 678 / 678 Doubled Words Tagged TASHDID=2</span>
+      <span class="badge">Barge-In Cut Latency: 232.04 ms vs 561.72 ms</span>
     </div>
 
     <!-- Interrupt Test Section -->
@@ -161,7 +169,7 @@
           </div>
           <audio controls src="../output/pipeline_interrupt_full.wav"></audio>
           <div class="meta">
-            Duration: <strong>7.1135s</strong> &bull; Synth: <strong>589.4 ms</strong> &bull; RMS: <strong>&minus;28.64 dB</strong> &bull; Mean F0: <strong>240.49 Hz</strong><br>
+            Duration: <strong>7.1832s</strong> &bull; Synth: <strong>561.72 ms</strong> &bull; RMS: <strong>&minus;29.69 dB</strong> &bull; Mean F0: <strong>241.78 Hz</strong><br>
             Pauses: <code>220 ms</code> after comma (<code>،</code>), <code>450 ms</code> after ellipsis (<code>...</code>)
           </div>
         </div>
@@ -172,8 +180,82 @@
           </div>
           <audio controls src="../output/pipeline_interrupt_cut.wav"></audio>
           <div class="meta">
-            Duration: <strong>2.7748s</strong> &bull; Synth: <strong>231.03 ms</strong> &bull; RMS: <strong>&minus;28.03 dB</strong> &bull; Mean F0: <strong>245.46 Hz</strong><br>
-            Triggered <code>threading.Event.set()</code> after chunk 0 &mdash; immediate abort + clean edge taper.
+            Duration: <strong>2.8561s</strong> &bull; Synth: <strong>232.04 ms</strong> &bull; RMS: <strong>&minus;27.90 dB</strong> &bull; Mean F0: <strong>264.20 Hz</strong><br>
+            Triggered <code>threading.Event.set()</code> after chunk 0 &mdash; immediate abort + 5 ms edge taper.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tashdid (Doubled Letters) Section -->
+    <div class="card">
+      <h2>2. Doubled-Letter Tashdid (Gemination) from G2P Dataset (<code>TestTashdidInWords</code>)</h2>
+      <p class="card-desc">
+        In <code>Dataset for G2P/homograph_dataset_clean_v2.csv</code>, Tashdid is encoded by doubling consonant letters
+        (e.g., <code>deqqat</code>, <code>mo?allem</code>, <code>tafakkor</code>, <code>zarrAt</code>).
+        Below each real ONNX output with doubled-letter <code>TASHDID = 2</code> is compared against collapsing the consonant to single (<code>TASHDID = 0</code>).
+      </p>
+
+      <div class="pair-row">
+        <div class="fa-text" lang="fa">دقّت (G2P dataset: <code>deqqat</code>)</div>
+        <div class="grid-2">
+          <div class="audio-block highlight">
+            <div class="audio-label"><span>Tashdid Doubled (<code>dˈeq1q1at</code>)</span><span class="pill">TASHDID tags: 4</span></div>
+            <audio controls src="../output/pipeline_tashdid_deqqat_doubled.wav"></audio>
+            <div class="meta">Duration: <strong>0.7895s</strong> &bull; RMS: <strong>&minus;40.35 dB</strong> &bull; Mean F0: <strong>194.00 Hz</strong></div>
+          </div>
+          <div class="audio-block">
+            <div class="audio-label"><span>Collapsed Single (<code>deq1ˈat</code>)</span><span class="pill warn">TASHDID tags: 0</span></div>
+            <audio controls src="../output/pipeline_tashdid_deqqat_single.wav"></audio>
+            <div class="meta">Duration: 0.4876s &bull; RMS: &minus;48.67 dB &bull; Mean F0: 159.33 Hz</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair-row">
+        <div class="fa-text" lang="fa">معلّم (G2P dataset: <code>mo?allem</code>)</div>
+        <div class="grid-2">
+          <div class="audio-block highlight">
+            <div class="audio-label"><span>Tashdid Doubled (<code>moʔallˈem</code>)</span><span class="pill">TASHDID tags: 2</span></div>
+            <audio controls src="../output/pipeline_tashdid_moallem_doubled.wav"></audio>
+            <div class="meta">Duration: <strong>1.0217s</strong> &bull; RMS: <strong>&minus;24.35 dB</strong> &bull; Mean F0: <strong>229.56 Hz</strong></div>
+          </div>
+          <div class="audio-block">
+            <div class="audio-label"><span>Collapsed Single (<code>moʔalˈem</code>)</span><span class="pill warn">TASHDID tags: 0</span></div>
+            <audio controls src="../output/pipeline_tashdid_moallem_single.wav"></audio>
+            <div class="meta">Duration: 1.1958s &bull; RMS: &minus;27.59 dB &bull; Mean F0: 221.02 Hz</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair-row">
+        <div class="fa-text" lang="fa">تفکّر (G2P dataset: <code>tafakkor</code>)</div>
+        <div class="grid-2">
+          <div class="audio-block highlight">
+            <div class="audio-label"><span>Tashdid Doubled (<code>tafakkˈor</code>)</span><span class="pill">TASHDID tags: 2</span></div>
+            <audio controls src="../output/pipeline_tashdid_tafakkor_doubled.wav"></audio>
+            <div class="meta">Duration: <strong>1.0797s</strong> &bull; RMS: <strong>&minus;34.67 dB</strong> &bull; Mean F0: <strong>212.71 Hz</strong></div>
+          </div>
+          <div class="audio-block">
+            <div class="audio-label"><span>Collapsed Single (<code>tafakˈor</code>)</span><span class="pill warn">TASHDID tags: 0</span></div>
+            <audio controls src="../output/pipeline_tashdid_tafakkor_single.wav"></audio>
+            <div class="meta">Duration: 0.5805s &bull; RMS: &minus;54.52 dB &bull; Mean F0: 86.13 Hz</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair-row">
+        <div class="fa-text" lang="fa">ذرّات (G2P dataset: <code>zarrAt</code>)</div>
+        <div class="grid-2">
+          <div class="audio-block highlight">
+            <div class="audio-label"><span>Tashdid Doubled (<code>zarrˈɑt</code>)</span><span class="pill">TASHDID tags: 2</span></div>
+            <audio controls src="../output/pipeline_tashdid_zarrat_doubled.wav"></audio>
+            <div class="meta">Duration: <strong>0.9288s</strong> &bull; RMS: <strong>&minus;28.12 dB</strong> &bull; Mean F0: <strong>255.18 Hz</strong></div>
+          </div>
+          <div class="audio-block">
+            <div class="audio-label"><span>Collapsed Single (<code>zarˈɑt</code>)</span><span class="pill warn">TASHDID tags: 0</span></div>
+            <audio controls src="../output/pipeline_tashdid_zarrat_single.wav"></audio>
+            <div class="meta">Duration: 0.8940s &bull; RMS: &minus;29.68 dB &bull; Mean F0: 223.92 Hz</div>
           </div>
         </div>
       </div>
@@ -181,53 +263,53 @@
 
     <!-- Word Stress: حتما -->
     <div class="card">
-      <h2>2. Word Stress Acoustic Sensitivity &mdash; &laquo;حتما&raquo; (<em>hatman</em>)</h2>
+      <h2>3. Lexical Word Stress Sensitivity &mdash; &laquo;حتما&raquo; (<em>hatman</em>)</h2>
       <div class="fa-text" lang="fa">حتما</div>
       <div class="grid-3">
         <div class="audio-block highlight">
           <div class="audio-label"><span>Initial Stress (Auto Rule)</span><span class="pill">hˈatman</span></div>
           <audio controls src="../output/pipeline_stress_hatman_stress1.wav"></audio>
-          <div class="meta">Duration: 1.4396s &bull; RMS: <strong>&minus;28.15 dB</strong> &bull; F0: <strong>255.58 Hz</strong></div>
+          <div class="meta">Duration: 1.6138s &bull; RMS: <strong>&minus;28.02 dB</strong> &bull; F0: <strong>250.22 Hz</strong></div>
         </div>
         <div class="audio-block">
           <div class="audio-label"><span>Shifted 2nd Syllable</span><span>hatmˈan</span></div>
           <audio controls src="../output/pipeline_stress_hatman_stress2.wav"></audio>
-          <div class="meta">Duration: 0.8707s &bull; RMS: &minus;30.21 dB &bull; F0: 246.90 Hz</div>
+          <div class="meta">Duration: 1.1494s &bull; RMS: &minus;32.33 dB &bull; F0: 237.09 Hz</div>
         </div>
         <div class="audio-block">
           <div class="audio-label"><span>Unstressed (Stripped)</span><span>hatman</span></div>
           <audio controls src="../output/pipeline_stress_hatman_none.wav"></audio>
-          <div class="meta">Duration: 1.6370s &bull; RMS: &minus;31.49 dB &bull; F0: 241.56 Hz</div>
+          <div class="meta">Duration: 1.0333s &bull; RMS: &minus;31.18 dB &bull; F0: 226.97 Hz</div>
         </div>
       </div>
     </div>
 
     <!-- Word Stress: حالا -->
     <div class="card">
-      <h2>3. Word Stress Acoustic Sensitivity &mdash; &laquo;حالا&raquo; (<em>hālā</em>)</h2>
+      <h2>4. Lexical Word Stress Sensitivity &mdash; &laquo;حالا&raquo; (<em>hālā</em>)</h2>
       <div class="fa-text" lang="fa">حالا</div>
       <div class="grid-3">
         <div class="audio-block highlight">
           <div class="audio-label"><span>Initial Stress (Auto Rule)</span><span class="pill">hˈɑlɑ</span></div>
           <audio controls src="../output/pipeline_stress_hala_stress1.wav"></audio>
-          <div class="meta">Duration: 0.3947s &bull; RMS: <strong>&minus;46.87 dB</strong> &bull; Peak: 0.0277</div>
+          <div class="meta">Duration: 0.3019s &bull; RMS: &minus;57.55 dB &bull; Peak: 0.0112</div>
         </div>
         <div class="audio-block">
           <div class="audio-label"><span>Shifted 2nd Syllable</span><span>hɑlˈɑ</span></div>
           <audio controls src="../output/pipeline_stress_hala_stress2.wav"></audio>
-          <div class="meta">Duration: 0.5457s &bull; RMS: &minus;51.02 dB &bull; Peak: 0.0335</div>
+          <div class="meta">Duration: 0.3019s &bull; RMS: &minus;59.92 dB &bull; Peak: 0.0132</div>
         </div>
         <div class="audio-block">
           <div class="audio-label"><span>Unstressed (Stripped)</span><span>hɑlɑ</span></div>
           <audio controls src="../output/pipeline_stress_hala_none.wav"></audio>
-          <div class="meta">Duration: 0.4644s &bull; RMS: &minus;49.45 dB &bull; Peak: 0.0177</div>
+          <div class="meta">Duration: 0.3019s &bull; RMS: &minus;54.99 dB &bull; Peak: 0.0148</div>
         </div>
       </div>
     </div>
 
     <!-- Full Verification Table -->
     <div class="card">
-      <h2>4. Automated Pipeline Verification Coverage (<code>10 / 10 OK</code> on Kaggle)</h2>
+      <h2>5. Automated Pipeline Verification Coverage (<code>12 / 12 OK</code> on Kaggle)</h2>
       <table>
         <thead>
           <tr>
@@ -238,12 +320,14 @@
           </tr>
         </thead>
         <tbody>
+          <tr><td><code>test_dataset_doubled_letters_trigger_tashdid_tag</code></td><td><code>TestTashdidInWords</code></td><td><code>zarrAt</code>, <code>tafakkor</code>, <code>nazariyyAte1</code>, <code>fa??Al</code>, <code>deqqat</code>, <code>Sakki</code> &rarr; <code>TASHDID=2</code></td><td><strong>OK</strong></td></tr>
+          <tr><td><code>test_tashdid_doubled_vs_single_modes</code></td><td><code>TestTashdidInWords</code></td><td><code>doubled</code> vs <code>doubled_normal_tag</code> vs <code>single</code> tag &amp; length isolation</td><td><strong>OK</strong></td></tr>
           <tr><td><code>test_adverb_and_verb_prefix_stress</code></td><td><code>TestStressInWords</code></td><td><code>hˈatman</code>, <code>hˈɑlɑ</code>, <code>mˈiravam</code>, <code>nˈemixɑnad</code></td><td><strong>OK</strong></td></tr>
           <tr><td><code>test_noun_ezafe_and_clitic_stress</code></td><td><code>TestStressInWords</code></td><td><code>ketˈɑbe</code> keeps stem stress + Ezafe tag; 9 clitics unstressed</td><td><strong>OK</strong></td></tr>
           <tr><td><code>test_controlled_word_stress_shifts</code></td><td><code>TestStressInWords</code></td><td><code>first_vowel</code> / <code>second_vowel</code> / <code>none</code> parity &amp; tag removal</td><td><strong>OK</strong></td></tr>
           <tr><td><code>test_clause_splitting_and_pause_durations</code></td><td><code>TestInterruptInTTS</code></td><td>Ellipsis (450ms) &gt; Comma (220ms) &amp; Question (400ms)</td><td><strong>OK</strong></td></tr>
           <tr><td><code>test_uninterrupted_and_barge_in_recovery</code></td><td><code>TestInterruptInTTS</code></td><td>Mid-chunk stop, pre-cancel (0 chunks), edge fade, clean recovery</td><td><strong>OK</strong></td></tr>
-          <tr><td><code>test_real_onnx_word_stress_and_interrupt</code></td><td><code>TestRealONNXInterruptAndStress</code></td><td>Real <code>persian_vits_upgraded.onnx</code> synthesis + F0/RMS report</td><td><strong>OK</strong></td></tr>
+          <tr><td><code>test_real_onnx_word_stress_and_interrupt</code></td><td><code>TestRealONNXInterruptAndStress</code></td><td>Real ONNX synthesis: 8 Tashdid + 6 Stress + 2 Interrupt WAVs + JSON</td><td><strong>OK</strong></td></tr>
           <tr><td><code>TestPersianG2PAlignment</code> + <code>TestUpgradedPersianVits</code></td><td><code>test_pipeline.py</code></td><td>G2P alignment, Step-0 diff=0, Flow inverse, MPD &amp; ONNX export</td><td><strong>OK (4/4)</strong></td></tr>
         </tbody>
       </table>

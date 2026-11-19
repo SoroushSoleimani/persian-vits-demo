@@ -4,73 +4,163 @@
   "word_stress_metrics": {
     "hatman_stress1": {
       "ipa": "hˈatman",
-      "duration_sec": 1.4396,
-      "rms_db": -28.15,
-      "peak": 0.2009,
-      "mean_f0_hz": 255.58,
-      "f0_std_hz": 25.62
+      "duration_sec": 1.6138,
+      "rms_db": -28.02,
+      "peak": 0.3458,
+      "mean_f0_hz": 250.22,
+      "f0_std_hz": 17.15
     },
     "hatman_stress2": {
       "ipa": "hatmˈan",
-      "duration_sec": 0.8707,
-      "rms_db": -30.21,
-      "peak": 0.2461,
-      "mean_f0_hz": 246.9,
-      "f0_std_hz": 17.36
+      "duration_sec": 1.1494,
+      "rms_db": -32.33,
+      "peak": 0.1505,
+      "mean_f0_hz": 237.09,
+      "f0_std_hz": 12.02
     },
     "hatman_none": {
       "ipa": "hatman",
-      "duration_sec": 1.637,
-      "rms_db": -31.49,
-      "peak": 0.231,
-      "mean_f0_hz": 241.56,
-      "f0_std_hz": 19.59
+      "duration_sec": 1.0333,
+      "rms_db": -31.18,
+      "peak": 0.2647,
+      "mean_f0_hz": 226.97,
+      "f0_std_hz": 20.82
     },
     "hala_stress1": {
       "ipa": "hˈɑlɑ",
-      "duration_sec": 0.3947,
-      "rms_db": -46.87,
-      "peak": 0.0277,
-      "mean_f0_hz": 86.13,
+      "duration_sec": 0.3019,
+      "rms_db": -57.55,
+      "peak": 0.0112,
+      "mean_f0_hz": 0.0,
       "f0_std_hz": 0.0
     },
     "hala_stress2": {
       "ipa": "hɑlˈɑ",
-      "duration_sec": 0.5457,
-      "rms_db": -51.02,
-      "peak": 0.0335,
-      "mean_f0_hz": 86.13,
+      "duration_sec": 0.3019,
+      "rms_db": -59.92,
+      "peak": 0.0132,
+      "mean_f0_hz": 0.0,
       "f0_std_hz": 0.0
     },
     "hala_none": {
       "ipa": "hɑlɑ",
-      "duration_sec": 0.4644,
-      "rms_db": -49.45,
-      "peak": 0.0177,
-      "mean_f0_hz": 106.0,
-      "f0_std_hz": 40.17
+      "duration_sec": 0.3019,
+      "rms_db": -54.99,
+      "peak": 0.0148,
+      "mean_f0_hz": 86.13,
+      "f0_std_hz": 0.0
+    }
+  },
+  "tashdid_metrics": {
+    "deqqat_doubled": {
+      "dataset_token": "deqqat",
+      "gemination_mode": "doubled",
+      "ipa": "dˈeq1q1at",
+      "tashdid_tag_count": 4,
+      "duration_sec": 0.7895,
+      "rms_db": -40.35,
+      "peak": 0.0742,
+      "mean_f0_hz": 194.0,
+      "f0_std_hz": 7.24
+    },
+    "deqqat_single": {
+      "dataset_token": "deqqat",
+      "gemination_mode": "single",
+      "ipa": "deq1ˈat",
+      "tashdid_tag_count": 0,
+      "duration_sec": 0.4876,
+      "rms_db": -48.67,
+      "peak": 0.03,
+      "mean_f0_hz": 159.33,
+      "f0_std_hz": 35.55
+    },
+    "moallem_doubled": {
+      "dataset_token": "mo?allem",
+      "gemination_mode": "doubled",
+      "ipa": "moʔallˈem",
+      "tashdid_tag_count": 2,
+      "duration_sec": 1.0217,
+      "rms_db": -24.35,
+      "peak": 0.28,
+      "mean_f0_hz": 229.56,
+      "f0_std_hz": 15.2
+    },
+    "moallem_single": {
+      "dataset_token": "mo?allem",
+      "gemination_mode": "single",
+      "ipa": "moʔalˈem",
+      "tashdid_tag_count": 0,
+      "duration_sec": 1.1958,
+      "rms_db": -27.59,
+      "peak": 0.2526,
+      "mean_f0_hz": 221.02,
+      "f0_std_hz": 5.72
+    },
+    "tafakkor_doubled": {
+      "dataset_token": "tafakkor",
+      "gemination_mode": "doubled",
+      "ipa": "tafakkˈor",
+      "tashdid_tag_count": 2,
+      "duration_sec": 1.0797,
+      "rms_db": -34.67,
+      "peak": 0.1224,
+      "mean_f0_hz": 212.71,
+      "f0_std_hz": 14.16
+    },
+    "tafakkor_single": {
+      "dataset_token": "tafakkor",
+      "gemination_mode": "single",
+      "ipa": "tafakˈor",
+      "tashdid_tag_count": 0,
+      "duration_sec": 0.5805,
+      "rms_db": -54.52,
+      "peak": 0.0136,
+      "mean_f0_hz": 86.13,
+      "f0_std_hz": 0.0
+    },
+    "zarrat_doubled": {
+      "dataset_token": "zarrAt",
+      "gemination_mode": "doubled",
+      "ipa": "zarrˈɑt",
+      "tashdid_tag_count": 2,
+      "duration_sec": 0.9288,
+      "rms_db": -28.12,
+      "peak": 0.2135,
+      "mean_f0_hz": 255.18,
+      "f0_std_hz": 21.11
+    },
+    "zarrat_single": {
+      "dataset_token": "zarrAt",
+      "gemination_mode": "single",
+      "ipa": "zarˈɑt",
+      "tashdid_tag_count": 0,
+      "duration_sec": 0.894,
+      "rms_db": -29.68,
+      "peak": 0.1971,
+      "mean_f0_hz": 223.92,
+      "f0_std_hz": 5.07
     }
   },
   "interrupt_full": {
     "completed_chunks": 3,
     "total_chunks": 3,
     "interrupted": false,
-    "elapsed_ms": 589.4,
-    "duration_sec": 7.1135,
-    "rms_db": -28.64,
-    "peak": 0.2479,
-    "mean_f0_hz": 240.49,
-    "f0_std_hz": 37.34
+    "elapsed_ms": 561.72,
+    "duration_sec": 7.1832,
+    "rms_db": -29.69,
+    "peak": 0.2079,
+    "mean_f0_hz": 241.78,
+    "f0_std_hz": 31.25
   },
   "interrupt_cut_after_chunk0": {
     "completed_chunks": 1,
     "total_chunks": 3,
     "interrupted": true,
-    "elapsed_ms": 231.03,
-    "duration_sec": 2.7748,
-    "rms_db": -28.03,
-    "peak": 0.2298,
-    "mean_f0_hz": 245.46,
-    "f0_std_hz": 47.51
+    "elapsed_ms": 232.04,
+    "duration_sec": 2.8561,
+    "rms_db": -27.9,
+    "peak": 0.2403,
+    "mean_f0_hz": 264.2,
+    "f0_std_hz": 46.83
   }
 }
