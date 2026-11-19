@@ -4,51 +4,57 @@
   "word_stress_metrics": {
     "hatman_stress1": {
       "ipa": "hˈatman",
-      "duration_sec": 1.6138,
-      "rms_db": -28.02,
-      "peak": 0.3458,
-      "mean_f0_hz": 250.22,
-      "f0_std_hz": 17.15
+      "carrier_sentence": "او حتما در جلسه فردا شرکت می‌کند.",
+      "duration_sec": 3.2044,
+      "rms_db": -17.56,
+      "peak": 0.85,
+      "mean_f0_hz": 237.39,
+      "f0_std_hz": 24.05
     },
     "hatman_stress2": {
       "ipa": "hatmˈan",
-      "duration_sec": 1.1494,
-      "rms_db": -32.33,
-      "peak": 0.1505,
-      "mean_f0_hz": 237.09,
-      "f0_std_hz": 12.02
+      "carrier_sentence": "او حتما در جلسه فردا شرکت می‌کند.",
+      "duration_sec": 3.007,
+      "rms_db": -16.42,
+      "peak": 0.85,
+      "mean_f0_hz": 225.59,
+      "f0_std_hz": 24.61
     },
     "hatman_none": {
       "ipa": "hatman",
-      "duration_sec": 1.0333,
-      "rms_db": -31.18,
-      "peak": 0.2647,
-      "mean_f0_hz": 226.97,
-      "f0_std_hz": 20.82
+      "carrier_sentence": "او حتما در جلسه فردا شرکت می‌کند.",
+      "duration_sec": 2.9605,
+      "rms_db": -18.17,
+      "peak": 0.85,
+      "mean_f0_hz": 228.27,
+      "f0_std_hz": 24.26
     },
     "hala_stress1": {
       "ipa": "hˈɑlɑ",
-      "duration_sec": 0.3019,
-      "rms_db": -57.55,
-      "peak": 0.0112,
-      "mean_f0_hz": 0.0,
-      "f0_std_hz": 0.0
+      "carrier_sentence": "ولی حالا آسمان کاملا صاف است.",
+      "duration_sec": 2.4497,
+      "rms_db": -17.15,
+      "peak": 0.85,
+      "mean_f0_hz": 232.65,
+      "f0_std_hz": 25.77
     },
     "hala_stress2": {
       "ipa": "hɑlˈɑ",
-      "duration_sec": 0.3019,
-      "rms_db": -59.92,
-      "peak": 0.0132,
-      "mean_f0_hz": 0.0,
-      "f0_std_hz": 0.0
+      "carrier_sentence": "ولی حالا آسمان کاملا صاف است.",
+      "duration_sec": 2.5542,
+      "rms_db": -19.3,
+      "peak": 0.85,
+      "mean_f0_hz": 228.42,
+      "f0_std_hz": 33.71
     },
     "hala_none": {
       "ipa": "hɑlɑ",
-      "duration_sec": 0.3019,
-      "rms_db": -54.99,
-      "peak": 0.0148,
-      "mean_f0_hz": 86.13,
-      "f0_std_hz": 0.0
+      "carrier_sentence": "ولی حالا آسمان کاملا صاف است.",
+      "duration_sec": 2.8096,
+      "rms_db": -19.38,
+      "peak": 0.85,
+      "mean_f0_hz": 231.63,
+      "f0_std_hz": 23.68
     }
   },
   "tashdid_metrics": {
@@ -56,111 +62,119 @@
       "dataset_token": "deqqat",
       "gemination_mode": "doubled",
       "ipa": "dˈeq1q1at",
+      "carrier_sentence": "او با دقت فراوان کار کرد.",
       "tashdid_tag_count": 4,
-      "duration_sec": 0.7895,
-      "rms_db": -40.35,
-      "peak": 0.0742,
-      "mean_f0_hz": 194.0,
-      "f0_std_hz": 7.24
+      "duration_sec": 2.2639,
+      "rms_db": -17.21,
+      "peak": 0.85,
+      "mean_f0_hz": 224.55,
+      "f0_std_hz": 36.44
     },
     "deqqat_single": {
       "dataset_token": "deqqat",
       "gemination_mode": "single",
       "ipa": "deq1ˈat",
+      "carrier_sentence": "او با دقت فراوان کار کرد.",
       "tashdid_tag_count": 0,
-      "duration_sec": 0.4876,
-      "rms_db": -48.67,
-      "peak": 0.03,
-      "mean_f0_hz": 159.33,
-      "f0_std_hz": 35.55
+      "duration_sec": 2.3684,
+      "rms_db": -18.5,
+      "peak": 0.85,
+      "mean_f0_hz": 214.95,
+      "f0_std_hz": 22.66
     },
     "moallem_doubled": {
       "dataset_token": "mo?allem",
       "gemination_mode": "doubled",
       "ipa": "moʔallˈem",
+      "carrier_sentence": "آن معلم مدرسه بسیار دلسوز است.",
       "tashdid_tag_count": 2,
-      "duration_sec": 1.0217,
-      "rms_db": -24.35,
-      "peak": 0.28,
-      "mean_f0_hz": 229.56,
-      "f0_std_hz": 15.2
+      "duration_sec": 2.9257,
+      "rms_db": -14.59,
+      "peak": 0.85,
+      "mean_f0_hz": 220.53,
+      "f0_std_hz": 27.78
     },
     "moallem_single": {
       "dataset_token": "mo?allem",
       "gemination_mode": "single",
       "ipa": "moʔalˈem",
+      "carrier_sentence": "آن معلم مدرسه بسیار دلسوز است.",
       "tashdid_tag_count": 0,
-      "duration_sec": 1.1958,
-      "rms_db": -27.59,
-      "peak": 0.2526,
-      "mean_f0_hz": 221.02,
-      "f0_std_hz": 5.72
+      "duration_sec": 2.8909,
+      "rms_db": -14.26,
+      "peak": 0.85,
+      "mean_f0_hz": 224.27,
+      "f0_std_hz": 26.21
     },
     "tafakkor_doubled": {
       "dataset_token": "tafakkor",
       "gemination_mode": "doubled",
       "ipa": "tafakkˈor",
+      "carrier_sentence": "او با تفکر عمیق سخن گفت.",
       "tashdid_tag_count": 2,
-      "duration_sec": 1.0797,
-      "rms_db": -34.67,
-      "peak": 0.1224,
-      "mean_f0_hz": 212.71,
-      "f0_std_hz": 14.16
+      "duration_sec": 2.3917,
+      "rms_db": -17.82,
+      "peak": 0.85,
+      "mean_f0_hz": 224.03,
+      "f0_std_hz": 25.61
     },
     "tafakkor_single": {
       "dataset_token": "tafakkor",
       "gemination_mode": "single",
       "ipa": "tafakˈor",
+      "carrier_sentence": "او با تفکر عمیق سخن گفت.",
       "tashdid_tag_count": 0,
-      "duration_sec": 0.5805,
-      "rms_db": -54.52,
-      "peak": 0.0136,
-      "mean_f0_hz": 86.13,
-      "f0_std_hz": 0.0
+      "duration_sec": 2.322,
+      "rms_db": -17.49,
+      "peak": 0.85,
+      "mean_f0_hz": 232.3,
+      "f0_std_hz": 28.74
     },
     "zarrat_doubled": {
       "dataset_token": "zarrAt",
       "gemination_mode": "doubled",
       "ipa": "zarrˈɑt",
+      "carrier_sentence": "در فیزیک ذرات انرژی اهمیت دارد.",
       "tashdid_tag_count": 2,
-      "duration_sec": 0.9288,
-      "rms_db": -28.12,
-      "peak": 0.2135,
-      "mean_f0_hz": 255.18,
-      "f0_std_hz": 21.11
+      "duration_sec": 3.1695,
+      "rms_db": -14.73,
+      "peak": 0.85,
+      "mean_f0_hz": 225.6,
+      "f0_std_hz": 26.37
     },
     "zarrat_single": {
       "dataset_token": "zarrAt",
       "gemination_mode": "single",
       "ipa": "zarˈɑt",
+      "carrier_sentence": "در فیزیک ذرات انرژی اهمیت دارد.",
       "tashdid_tag_count": 0,
-      "duration_sec": 0.894,
-      "rms_db": -29.68,
-      "peak": 0.1971,
-      "mean_f0_hz": 223.92,
-      "f0_std_hz": 5.07
+      "duration_sec": 3.1927,
+      "rms_db": -17.07,
+      "peak": 0.85,
+      "mean_f0_hz": 222.45,
+      "f0_std_hz": 22.49
     }
   },
   "interrupt_full": {
     "completed_chunks": 3,
     "total_chunks": 3,
     "interrupted": false,
-    "elapsed_ms": 561.72,
-    "duration_sec": 7.1832,
-    "rms_db": -29.69,
-    "peak": 0.2079,
-    "mean_f0_hz": 241.78,
-    "f0_std_hz": 31.25
+    "elapsed_ms": 385.1,
+    "duration_sec": 7.485,
+    "rms_db": -16.75,
+    "peak": 0.85,
+    "mean_f0_hz": 235.19,
+    "f0_std_hz": 33.17
   },
   "interrupt_cut_after_chunk0": {
     "completed_chunks": 1,
     "total_chunks": 3,
     "interrupted": true,
-    "elapsed_ms": 232.04,
-    "duration_sec": 2.8561,
-    "rms_db": -27.9,
-    "peak": 0.2403,
-    "mean_f0_hz": 264.2,
-    "f0_std_hz": 46.83
+    "elapsed_ms": 137.56,
+    "duration_sec": 2.5542,
+    "rms_db": -17.13,
+    "peak": 0.85,
+    "mean_f0_hz": 240.42,
+    "f0_std_hz": 30.38
   }
 }
