@@ -1,0 +1,76 @@
+{
+  "onnx_path": "output/persian_vits_upgraded.onnx",
+  "context_dim": 512,
+  "word_stress_metrics": {
+    "hatman_stress1": {
+      "ipa": "hˈatman",
+      "duration_sec": 1.4396,
+      "rms_db": -28.15,
+      "peak": 0.2009,
+      "mean_f0_hz": 255.58,
+      "f0_std_hz": 25.62
+    },
+    "hatman_stress2": {
+      "ipa": "hatmˈan",
+      "duration_sec": 0.8707,
+      "rms_db": -30.21,
+      "peak": 0.2461,
+      "mean_f0_hz": 246.9,
+      "f0_std_hz": 17.36
+    },
+    "hatman_none": {
+      "ipa": "hatman",
+      "duration_sec": 1.637,
+      "rms_db": -31.49,
+      "peak": 0.231,
+      "mean_f0_hz": 241.56,
+      "f0_std_hz": 19.59
+    },
+    "hala_stress1": {
+      "ipa": "hˈɑlɑ",
+      "duration_sec": 0.3947,
+      "rms_db": -46.87,
+      "peak": 0.0277,
+      "mean_f0_hz": 86.13,
+      "f0_std_hz": 0.0
+    },
+    "hala_stress2": {
+      "ipa": "hɑlˈɑ",
+      "duration_sec": 0.5457,
+      "rms_db": -51.02,
+      "peak": 0.0335,
+      "mean_f0_hz": 86.13,
+      "f0_std_hz": 0.0
+    },
+    "hala_none": {
+      "ipa": "hɑlɑ",
+      "duration_sec": 0.4644,
+      "rms_db": -49.45,
+      "peak": 0.0177,
+      "mean_f0_hz": 106.0,
+      "f0_std_hz": 40.17
+    }
+  },
+  "interrupt_full": {
+    "completed_chunks": 3,
+    "total_chunks": 3,
+    "interrupted": false,
+    "elapsed_ms": 589.4,
+    "duration_sec": 7.1135,
+    "rms_db": -28.64,
+    "peak": 0.2479,
+    "mean_f0_hz": 240.49,
+    "f0_std_hz": 37.34
+  },
+  "interrupt_cut_after_chunk0": {
+    "completed_chunks": 1,
+    "total_chunks": 3,
+    "interrupted": true,
+    "elapsed_ms": 231.03,
+    "duration_sec": 2.7748,
+    "rms_db": -28.03,
+    "peak": 0.2298,
+    "mean_f0_hz": 245.46,
+    "f0_std_hz": 47.51
+  }
+}
