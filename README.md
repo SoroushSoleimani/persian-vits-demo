@@ -4,7 +4,25 @@ An end-to-end **Persian Text-to-Speech (TTS)** fine-tuning and ONNX export pipel
 
 > **Live Interactive Audio Showcase (`github.io`):** [https://soroushsoleimani.github.io/persian-vits-demo/](https://soroushsoleimani.github.io/persian-vits-demo/) — Listen to all 5 Before/After comparisons, inspect IPA streams, Whisper ASR CER metrics, training curves, and the full pipeline diagram directly in your browser.
 >
+> **G2P Homograph Fine-Tuning Branch (`g2p-homograph-finetune`) Live Demo:** [https://soroushsoleimani.github.io/persian-vits-demo/g2p-finetune/](https://soroushsoleimani.github.io/persian-vits-demo/g2p-finetune/) — 12-epoch FP32 fine-tuning of `Homo-GE2PE-Persian` on 2,400 Persian homograph sentences (`Held-Out PER: 0.0347 -> 0.0283`, `Homograph Acc: 58.67% -> 64.33%`, `8-Sentence Audio Showcase: 5/8 -> 7/8`), implemented in [`finetune_g2p_dataset.py`](finetune_g2p_dataset.py).
+>
 > **Verification Status:** Tested end-to-end on Kaggle **GPU (`CUDA`)** across **700 `Mana-TTS` studio Persian clips** for **16 epochs** (`batch_size=8`), exported to a verified dynamic-axis **`65.08 MB` ONNX model** ([`output/persian_vits_upgraded.onnx`](output/persian_vits_upgraded.onnx)), and evaluated side-by-side against `fa_IR-amir-medium` + `espeak-ng` using `openai/whisper-small` ASR.
+
+---
+
+## Branch Experiment: `Homo-GE2PE` Fine-Tuning on Persian Homographs ([`finetune_g2p_dataset.py`](finetune_g2p_dataset.py))
+
+Fine-tuned `MahtaFetrat/Homo-GE2PE-Persian` (ByT5, FP32 on Kaggle T4 GPU, `12 epochs`, `lr=1e-4`) on a token-aligned stratified subset (`2,400` training + `300` held-out unseen sentences across multi-pronunciation Persian homographs):
+
+![Homo-GE2PE Fine-Tuning Loss, PER & Homograph Accuracy Curves](output/g2p_training_curves.png)
+
+| Evaluation Set | Phoneme Error Rate (PER) | Word Exact Accuracy | Homograph Sense Accuracy | Report |
+| :--- | :---: | :---: | :---: | :--- |
+| **Held-Out Unseen (`300`)** | `0.0347` &rarr; **`0.0283`** *(&minus;18.4%)* | `81.70%` &rarr; **`84.58%`** | `58.67%` &rarr; **`64.33%`** *(`193/300`)* | [`output/g2p_eval_report.json`](output/g2p_eval_report.json) |
+| **Train Sample (`150`)** | `0.0289` &rarr; **`0.0239`** | `82.97%` &rarr; **`87.10%`** | `67.33%` &rarr; **`69.33%`** | [`output/g2p_eval_report.json`](output/g2p_eval_report.json) |
+| **8-Sentence Audio Showcase** | `0.0436` &rarr; **`0.0233`** | `81.36%` &rarr; **`88.14%`** | `62.50%` *(`5/8`)* &rarr; **`87.50%` *(`7/8`)*** | [`g2p-finetune/index.html`](g2p-finetune/index.html) |
+
+![8-Sentence Before vs After Waveform & 80-Bin Log-Mel Comparison](output/g2p_finetune_comparison.png)
 
 ---
 

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homo-GE2PE Fine-Tuning on Persian Homograph Dataset (Before vs. After)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #4b5563;
+      --accent: #2563eb;
+      --green-bg: #ecfdf5;
+      --green-fg: #065f46;
+      --green-bd: #a7f3d0;
+      --red-bg: #fef2f2;
+      --red-fg: #991b1b;
+      --amber-bg: #fffbeb;
+      --amber-fg: #92400e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 36px 20px 64px;
+      line-height: 1.65;
+    }
+    .container { max-width: 980px; margin: 0 auto; }
+    .topbar { margin-bottom: 18px; font-size: 0.92rem; }
+    .topbar a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .topbar a:hover { text-decoration: underline; }
+    h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 8px; line-height: 1.3; }
+    .subtitle { color: var(--muted); font-size: 0.98rem; margin: 0 0 18px; }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .badge.good {
+      background: var(--green-bg);
+      border-color: var(--green-bd);
+      color: var(--green-fg);
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+    .card h2 { font-size: 1.22rem; margin: 0 0 10px; }
+    .diagram-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    .caption { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+    .audio-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .audio-block.after { background: #f0fdf4; border-color: #bbf7d0; }
+    .audio-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    audio { width: 100%; height: 38px; outline: none; }
+    .fa-text {
+      font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+      font-size: 1.12rem;
+      font-weight: 600;
+      background: #f8fafc;
+      border-right: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    .pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .pill-ok { background: var(--green-bg); color: var(--green-fg); }
+    .pill-miss { background: var(--red-bg); color: var(--red-fg); }
+    .pill-train { background: #eff6ff; color: #1d4ed8; }
+    .pill-test { background: var(--amber-bg); color: var(--amber-fg); }
+    .ipa {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #374151;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 6px 9px;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+    th, td { padding: 8px 10px; border: 1px solid var(--border); text-align: center; }
+    th { background: var(--surface); font-weight: 600; }
+    td:first-child, th:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="../">&larr; Main VITS Pipeline Showcase (<code>main</code>)</a> &bull;
+      <a href="https://github.com/SoroushSoleimani/persian-vits-demo/tree/g2p-homograph-finetune" target="_blank" rel="noopener">Branch: <code>g2p-homograph-finetune</code></a> &bull;
+      <a href="https://www.kaggle.com/code/soroushsoleimani/persian-g2p-homograph-finetune" target="_blank" rel="noopener">Kaggle GPU Run</a> &bull;
+      <a href="../output/g2p_eval_report.json" target="_blank" rel="noopener">JSON Report</a>
+    </div>
+
+    <h1>Homo-GE2PE Fine-Tuning on Persian Homograph Dataset</h1>
+    <p class="subtitle">
+      Evaluating direct fine-tuning of <strong>MahtaFetrat/Homo-GE2PE-Persian</strong> (ByT5, 12 epochs, FP32 on Kaggle T4 GPU)
+      on a clean stratified subset of 2,400 training + 300 held-out unseen Persian homograph sentences, synthesized end-to-end through
+      <code>persian_vits_upgraded.onnx</code>.
+    </p>
+
+    <div class="badges">
+      <span class="badge">2,400 Train / 300 Held-Out Test</span>
+      <span class="badge">12 Epochs &middot; FP32 CUDA T4</span>
+      <span class="badge good">Held-Out PER: 0.0347 &rarr; 0.0283 (&minus;18.4%)</span>
+      <span class="badge good">Held-Out Homograph Acc: 58.67% &rarr; 64.33%</span>
+      <span class="badge good">Showcase Homograph Acc: 62.5% &rarr; 87.5%</span>
+    </div>
+
+    <!-- Summary Metrics & Training Curves -->
+    <div class="card">
+      <h2>Quantitative Before vs. After Results &amp; Training Curves</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Evaluation Split</th>
+            <th>Metric</th>
+            <th>Before (Base Homo-GE2PE)</th>
+            <th>After (Fine-Tuned)</th>
+            <th>Delta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Held-Out Unseen Test (300)</strong></td><td>Phoneme Error Rate (PER)</td><td>0.0347</td><td><strong>0.0283</strong></td><td>&minus;18.4% relative</td></tr>
+          <tr><td><strong>Held-Out Unseen Test (300)</strong></td><td>Word Exact Accuracy</td><td>81.70%</td><td><strong>84.58%</strong></td><td>+2.88%</td></tr>
+          <tr><td><strong>Held-Out Unseen Test (300)</strong></td><td>Homograph Sense Accuracy</td><td>58.67% (176/300)</td><td><strong>64.33% (193/300)</strong></td><td>+5.67% (+17 hits)</td></tr>
+          <tr><td><strong>Train Sample (150)</strong></td><td>PER / Homograph Acc</td><td>0.0289 / 67.33%</td><td><strong>0.0239 / 69.33%</strong></td><td>&minus;17.3% PER / +2.0%</td></tr>
+          <tr><td><strong>8-Sentence Audio Showcase</strong></td><td>PER / Homograph Acc</td><td>0.0436 / 62.5% (5/8)</td><td><strong>0.0233 / 87.5% (7/8)</strong></td><td>&minus;46.6% PER / +25.0%</td></tr>
+        </tbody>
+      </table>
+      <br>
+      <a href="../output/g2p_training_curves.png" target="_blank" rel="noopener">
+        <img class="diagram-img" src="../output/g2p_training_curves.png" alt="Homo-GE2PE Fine-Tuning Loss, PER and Homograph Accuracy Curves">
+      </a>
+    </div>
+
+    <!-- Combined 8 Sentences -->
+    <div class="card">
+      <h2>Combined 8-Sentence Speech Comparison (Before G2P vs. After G2P &rarr; Piper ONNX)</h2>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label">
+            <span>BEFORE (Base Homo-GE2PE &rarr; Piper ONNX)</span>
+            <span class="pill pill-miss">5/8 Hits</span>
+          </div>
+          <audio controls src="../output/g2p_all_before.wav"></audio>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label">
+            <span>AFTER (Fine-Tuned Homo-GE2PE &rarr; Piper ONNX)</span>
+            <span class="pill pill-ok">7/8 Hits</span>
+          </div>
+          <audio controls src="../output/g2p_all_after.wav"></audio>
+        </div>
+      </div>
+    </div>
+
+    <!-- T1 & T2: ابر -->
+    <div class="card">
+      <h2>Test 1 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>ابر</code> (/b/r = super-)</h2>
+      <div class="fa-text" lang="fa">أبر شرکت‌های فناوری دنیا در سیلیکون‌ولی مستقر هستند.</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (PER 0.0769)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test1_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> @/b/re $erk/thaye f/n/v/riye1 donya d/r silikun v/li most/q/r h/st/nd</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (PER 0.0615 &mdash; fixed Ezafe)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test1_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> /b/r $erk/thaye1 f/n/v/riye donya d/r silikun v/li most/q/r h/st/nd</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Test 2 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>ابر</code> (/br = cloud)</h2>
+      <div class="fa-text" lang="fa">رنگین‌کمان در کنار ابرها دیده می‌شد</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (PER 0.0513)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test2_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> r/ngink/man d/r kenareye1 @/brha dide mi$od</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (PER 0.0000 Exact)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test2_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> r/ngink/man d/r kenare1 /brha dide mi$od</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T3 & T4: اجر -->
+    <div class="card">
+      <h2>Test 3 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>اجر</code> (ajor = brick, written without آ)</h2>
+      <div class="fa-text" lang="fa">این اجرها به دلیل قدمت زیاد، ارزش تاریخی دارند.</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (PER 0.0185)</span><span class="pill pill-miss">MISS</span></div>
+          <audio controls src="../output/g2p_test3_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> @in @/jorha be d/lile1 qedm/te1 ziyad @/rze$e1 tarixi dar/nd</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (PER 0.0185)</span><span class="pill pill-miss">MISS</span></div>
+          <audio controls src="../output/g2p_test3_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> in /jorha be d/lile1 qedm/te1 ziyad /rze$e1 tarixi dar/nd</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Test 4 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>اجر</code> (/jr = reward)</h2>
+      <div class="fa-text" lang="fa">اجر صبر، گواراتر از عسل است.</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (PER 0.0333)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test4_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> @/jre s/br guvart/r @/z @/s/l @/st</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (PER 0.0333)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test4_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> /jre1 s/br g/vart/r /z /s/l /st</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T5 & T6: اره -->
+    <div class="card">
+      <h2>Test 5 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>اره</code> (are = yes)</h2>
+      <div class="fa-text" lang="fa">جواب این سوال فقط یک کلمه است: اره یا نه؟!</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (PER 0.0222)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test5_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> j/vabe1 @in so@al f/q/t yek k/l/me @/st @are ya n/</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (PER 0.0222)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test5_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> j/vabe1 in so@al f/q/t yek k/l/me /st are ya n/</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Test 6 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>اره</code> (/rre = saw &mdash; fixed!)</h2>
+      <div class="fa-text" lang="fa">تیغه اره بسیار تیز است.</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (wrong &ldquo;āre&rdquo;, PER 0.1111)</span><span class="pill pill-miss">MISS</span></div>
+          <audio controls src="../output/g2p_test6_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> tiqeye1 @are besyar tiz @/st</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (fixed &ldquo;arre&rdquo;, PER 0.0370)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test6_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> tiqeye /rre besyar tiz /st</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T7 & T8: سمت -->
+    <div class="card">
+      <h2>Test 7 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>سمت</code> (s/mt = direction &mdash; fixed!)</h2>
+      <div class="fa-text" lang="fa">باد از سمت دریا وزیدن گرفت.</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (wrong &ldquo;semat&rdquo;, PER 0.0606)</span><span class="pill pill-miss">MISS</span></div>
+          <audio controls src="../output/g2p_test7_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> bad @/z sem/te1 d/rya v/zid/n gereft</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (fixed &ldquo;samt&rdquo;, PER 0.0000 Exact)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test7_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> bad /z s/mte1 d/rya v/zid/n gereft</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Test 8 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>سمت</code> (sem/t = role)</h2>
+      <div class="fa-text" lang="fa">سمت او در این سازمان، ناظر کیفی محصولات است.</div>
+      <div class="grid-2">
+        <div class="audio-block">
+          <div class="audio-label"><span>BEFORE (PER 0.0000)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test8_before.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> sem/te1 @u d/r @in sazman nazere1 keyfiye1 m/h/sulat @/st</div>
+        </div>
+        <div class="audio-block after">
+          <div class="audio-label"><span>AFTER (PER 0.0000 Exact)</span><span class="pill pill-ok">OK</span></div>
+          <audio controls src="../output/g2p_test8_after.wav"></audio>
+          <div class="ipa"><strong>Pred:</strong> sem/te1 u d/r in sazman nazere1 keyfiye m/h/sulat /st</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spectrograms -->
+    <div class="card">
+      <h2>8-Sentence Waveform &amp; 80-Bin Log-Mel Spectrogram Comparison</h2>
+      <a href="../output/g2p_finetune_comparison.png" target="_blank" rel="noopener">
+        <img class="diagram-img" src="../output/g2p_finetune_comparison.png" alt="Before vs After Waveforms and Log-Mel Spectrograms">
+      </a>
+    </div>
+  </div>
+</body>
+</html>

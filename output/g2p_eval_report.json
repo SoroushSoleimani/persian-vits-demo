@@ -1,0 +1,264 @@
+{
+  "dataset_csv": "Dataset for G2P/homograph_dataset_clean_v2.csv",
+  "train_count": 2400,
+  "test_unseen_count": 300,
+  "showcase_count": 8,
+  "epochs": 12,
+  "lr": 0.0001,
+  "before_train_sample": {
+    "count": 150,
+    "per": 0.0289,
+    "word_exact_acc": 0.8297,
+    "homograph_acc": 0.6733,
+    "homograph_hits": 101
+  },
+  "after_train_sample": {
+    "count": 150,
+    "per": 0.0239,
+    "word_exact_acc": 0.871,
+    "homograph_acc": 0.6933,
+    "homograph_hits": 104
+  },
+  "before_test_unseen": {
+    "count": 300,
+    "per": 0.0347,
+    "word_exact_acc": 0.817,
+    "homograph_acc": 0.5867,
+    "homograph_hits": 176
+  },
+  "after_test_unseen": {
+    "count": 300,
+    "per": 0.0283,
+    "word_exact_acc": 0.8458,
+    "homograph_acc": 0.6433,
+    "homograph_hits": 193
+  },
+  "before_showcase_summary": {
+    "count": 8,
+    "per": 0.0436,
+    "word_exact_acc": 0.8136,
+    "homograph_acc": 0.625,
+    "homograph_hits": 5
+  },
+  "after_showcase_summary": {
+    "count": 8,
+    "per": 0.0233,
+    "word_exact_acc": 0.8814,
+    "homograph_acc": 0.875,
+    "homograph_hits": 7
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4754,
+      "val_loss": 0.1553,
+      "test_per": 0.0359,
+      "test_homograph_acc": 0.5733
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.1338,
+      "val_loss": 0.112,
+      "test_per": 0.0328,
+      "test_homograph_acc": 0.5933
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.1038,
+      "val_loss": 0.1028
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.0938,
+      "val_loss": 0.1001,
+      "test_per": 0.0303,
+      "test_homograph_acc": 0.6133
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.0869,
+      "val_loss": 0.0961
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.0817,
+      "val_loss": 0.0954,
+      "test_per": 0.0287,
+      "test_homograph_acc": 0.6333
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.0777,
+      "val_loss": 0.0946
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.0755,
+      "val_loss": 0.0949,
+      "test_per": 0.0283,
+      "test_homograph_acc": 0.6367
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.0743,
+      "val_loss": 0.0949
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.0723,
+      "val_loss": 0.095,
+      "test_per": 0.028,
+      "test_homograph_acc": 0.6433
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.0731,
+      "val_loss": 0.0949
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.072,
+      "val_loss": 0.0949,
+      "test_per": 0.028,
+      "test_homograph_acc": 0.6433
+    }
+  ],
+  "showcase_details": [
+    {
+      "id": 1,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "أبر شرکت‌های فناوری دنیا در سیلیکون‌ولی مستقر هستند.",
+      "homograph_grapheme": "ابر",
+      "homograph_phoneme_csv": "?abar",
+      "homograph_target_ge2pe": "/b/r",
+      "target_ge2pe": "/b/r $erk/thaye1 f/n/v/riye donya d/r $ilikonvali most/q/r h/st/nd",
+      "before_pred_raw": "@/b/re $erk/thaye f/n/v/riye1 donya d/r silikun v/li most/q/r h/st/nd",
+      "before_homograph_hit": true,
+      "before_per": 0.0769,
+      "after_pred_raw": "/b/r $erk/thaye1 f/n/v/riye donya d/r silikun v/li most/q/r h/st/nd",
+      "after_homograph_hit": true,
+      "after_per": 0.0615,
+      "before_wav": "output/g2p_test1_before.wav",
+      "after_wav": "output/g2p_test1_after.wav"
+    },
+    {
+      "id": 2,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "رنگین‌کمان در کنار ابرها دیده می‌شد",
+      "homograph_grapheme": "ابر",
+      "homograph_phoneme_csv": "?abr",
+      "homograph_target_ge2pe": "/br",
+      "target_ge2pe": "r/ngink/man d/r kenare1 /brha dide mi$od",
+      "before_pred_raw": "r/ngink/man d/r kenareye1 @/brha dide mi$od",
+      "before_homograph_hit": true,
+      "before_per": 0.0513,
+      "after_pred_raw": "r/ngink/man d/r kenare1 /brha dide mi$od",
+      "after_homograph_hit": true,
+      "after_per": 0.0,
+      "before_wav": "output/g2p_test2_before.wav",
+      "after_wav": "output/g2p_test2_after.wav"
+    },
+    {
+      "id": 3,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "این اجرها به دلیل قدمت زیاد، ارزش تاریخی دارند.",
+      "homograph_grapheme": "اجر",
+      "homograph_phoneme_csv": "?Ajor",
+      "homograph_target_ge2pe": "ajor",
+      "target_ge2pe": "in ajorha be d/lile1 qedm/te1 ziyad /rze$e1 tarixi dar/nd",
+      "before_pred_raw": "@in @/jorha be d/lile1 qedm/te1 ziyad @/rze$e1 tarixi dar/nd",
+      "before_homograph_hit": false,
+      "before_per": 0.0185,
+      "after_pred_raw": "in /jorha be d/lile1 qedm/te1 ziyad /rze$e1 tarixi dar/nd",
+      "after_homograph_hit": false,
+      "after_per": 0.0185,
+      "before_wav": "output/g2p_test3_before.wav",
+      "after_wav": "output/g2p_test3_after.wav"
+    },
+    {
+      "id": 4,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "اجر صبر، گواراتر از عسل است.",
+      "homograph_grapheme": "اجر",
+      "homograph_phoneme_csv": "?ajr",
+      "homograph_target_ge2pe": "/jr",
+      "target_ge2pe": "/jre1 s/br govart/r /z /s/l /st",
+      "before_pred_raw": "@/jre s/br guvart/r @/z @/s/l @/st",
+      "before_homograph_hit": true,
+      "before_per": 0.0333,
+      "after_pred_raw": "/jre1 s/br g/vart/r /z /s/l /st",
+      "after_homograph_hit": true,
+      "after_per": 0.0333,
+      "before_wav": "output/g2p_test4_before.wav",
+      "after_wav": "output/g2p_test4_after.wav"
+    },
+    {
+      "id": 5,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "جواب این سوال فقط یک کلمه است: اره یا نه؟!",
+      "homograph_grapheme": "اره",
+      "homograph_phoneme_csv": "?Are",
+      "homograph_target_ge2pe": "are",
+      "target_ge2pe": "j/vabe1 in soal f/q/t yek k/l/me /st are ya n/",
+      "before_pred_raw": "j/vabe1 @in so@al f/q/t yek k/l/me @/st @are ya n/",
+      "before_homograph_hit": true,
+      "before_per": 0.0222,
+      "after_pred_raw": "j/vabe1 in so@al f/q/t yek k/l/me /st are ya n/",
+      "after_homograph_hit": true,
+      "after_per": 0.0222,
+      "before_wav": "output/g2p_test5_before.wav",
+      "after_wav": "output/g2p_test5_after.wav"
+    },
+    {
+      "id": 6,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "تیغه اره بسیار تیز است.",
+      "homograph_grapheme": "اره",
+      "homograph_phoneme_csv": "?arre",
+      "homograph_target_ge2pe": "/rre",
+      "target_ge2pe": "tiqeye /rre besiyar tiz /st",
+      "before_pred_raw": "tiqeye1 @are besyar tiz @/st",
+      "before_homograph_hit": false,
+      "before_per": 0.1111,
+      "after_pred_raw": "tiqeye /rre besyar tiz /st",
+      "after_homograph_hit": true,
+      "after_per": 0.037,
+      "before_wav": "output/g2p_test6_before.wav",
+      "after_wav": "output/g2p_test6_after.wav"
+    },
+    {
+      "id": 7,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "باد از سمت دریا وزیدن گرفت.",
+      "homograph_grapheme": "سمت",
+      "homograph_phoneme_csv": "samt",
+      "homograph_target_ge2pe": "s/mt",
+      "target_ge2pe": "bad /z s/mte1 d/rya v/zid/n gereft",
+      "before_pred_raw": "bad @/z sem/te1 d/rya v/zid/n gereft",
+      "before_homograph_hit": false,
+      "before_per": 0.0606,
+      "after_pred_raw": "bad /z s/mte1 d/rya v/zid/n gereft",
+      "after_homograph_hit": true,
+      "after_per": 0.0,
+      "before_wav": "output/g2p_test7_before.wav",
+      "after_wav": "output/g2p_test7_after.wav"
+    },
+    {
+      "id": 8,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "سمت او در این سازمان، ناظر کیفی محصولات است.",
+      "homograph_grapheme": "سمت",
+      "homograph_phoneme_csv": "semat",
+      "homograph_target_ge2pe": "sem/t",
+      "target_ge2pe": "sem/te1 u d/r in sazman nazere1 keyfiye m/h/sulat /st",
+      "before_pred_raw": "sem/te1 @u d/r @in sazman nazere1 keyfiye1 m/h/sulat @/st",
+      "before_homograph_hit": true,
+      "before_per": 0.0,
+      "after_pred_raw": "sem/te1 u d/r in sazman nazere1 keyfiye m/h/sulat /st",
+      "after_homograph_hit": true,
+      "after_per": 0.0,
+      "before_wav": "output/g2p_test8_before.wav",
+      "after_wav": "output/g2p_test8_after.wav"
+    }
+  ]
+}
