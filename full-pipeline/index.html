@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persian TTS Pipeline (VITS + Piper Base) &mdash; Full End-to-End Implementation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #4b5563;
+      --accent: #2563eb;
+      --green-bg: #ecfdf5;
+      --green-fg: #065f46;
+      --green-bd: #a7f3d0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 36px 20px 64px;
+      line-height: 1.65;
+    }
+    .container { max-width: 980px; margin: 0 auto; }
+    .topbar { margin-bottom: 18px; font-size: 0.92rem; display: flex; flex-wrap: wrap; gap: 10px; }
+    .topbar a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .topbar a:hover { text-decoration: underline; }
+    h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 8px; line-height: 1.3; }
+    .subtitle { color: var(--muted); font-size: 0.98rem; margin: 0 0 18px; }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .badge.good { background: var(--green-bg); border-color: var(--green-bd); color: var(--green-fg); }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+    .card h2 { font-size: 1.2rem; margin: 0 0 10px; }
+    .diagram-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 760px) { .grid-3 { grid-template-columns: 1fr; } }
+    .audio-block {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    .audio-label {
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+    audio { width: 100%; height: 38px; outline: none; }
+    .fa-text {
+      font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+      font-size: 1.12rem;
+      font-weight: 600;
+      background: #f8fafc;
+      border-right: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    .fa-norm {
+      font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+      font-size: 0.96rem;
+      color: #1e293b;
+      background: #f1f5f9;
+      padding: 7px 12px;
+      border-radius: 6px;
+      margin: 6px 0;
+    }
+    .meta {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.79rem;
+      color: #374151;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    .pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--green-bg);
+      color: var(--green-fg);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 8px; }
+    th, td { padding: 8px 10px; border: 1px solid var(--border); text-align: center; }
+    th { background: var(--surface); font-weight: 600; }
+    td:first-child, th:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="../">&larr; Main VITS Showcase (<code>main</code>)</a>
+      <span>&bull;</span>
+      <a href="../g2p-finetune/">G2P Homograph Demo (<code>g2p-homograph-finetune</code>)</a>
+      <span>&bull;</span>
+      <a href="../interrupt-stress/">Interrupt &amp; Tashdid Demo (<code>pipeline-test-interrupt-stress</code>)</a>
+      <span>&bull;</span>
+      <a href="https://github.com/SoroushSoleimani/persian-vits-demo/tree/full-persian-tts-pipeline" target="_blank" rel="noopener">Branch: <code>full-persian-tts-pipeline</code></a>
+      <span>&bull;</span>
+      <a href="../output/full_pipeline_report.json" target="_blank" rel="noopener">JSON Report</a>
+    </div>
+
+    <h1>Persian TTS Pipeline (VITS + Piper Base) &mdash; Full Implementation</h1>
+    <p class="subtitle">
+      Complete implementation of all pipeline blocks (<strong>D</strong>: Homograph Dataset &amp; Repr. 2 Disambiguator,
+      <strong>1</strong>: Text Normalization, <strong>2&ndash;4</strong>: Persian G2P + Phoneme IDs + Prosody Tags,
+      <strong>5&ndash;8 &amp; T1&ndash;T3</strong>: VITS Text Encoder, Stochastic Duration Predictor + MAS, Normalizing Flow,
+      HiFi-GAN Decoder &amp; Multi-Period/Multi-Scale Discriminators, <strong>9</strong>: ONNX Export, Scales, Chunking &amp; Silence Trim).
+    </p>
+
+    <div class="badges">
+      <span class="badge good">Automated Tests: 11 / 11 Passed</span>
+      <span class="badge">Fine-Tuned Homo-GE2PE Attached (Repr. 2)</span>
+      <span class="badge">6 Benchmark Sentences: RMS &minus;15.92 to &minus;17.81 dB</span>
+      <span class="badge">Silence Ratio: 6.9% to 12.5%</span>
+    </div>
+
+    <!-- Pipeline Architecture Diagram -->
+    <div class="card">
+      <h2>Pipeline Architecture &mdash; Persian TTS Pipeline (VITS + Piper base)</h2>
+      <a href="../output/persian_tts_pipeline_diagram.png" target="_blank" rel="noopener">
+        <img class="diagram-img" src="../output/persian_tts_pipeline_diagram.png" alt="Persian TTS Pipeline (VITS + Piper base)">
+      </a>
+    </div>
+
+    <!-- S1 -->
+    <div class="card">
+      <h2>Sentence 1 &mdash; Homograph &laquo;سمت&raquo; (<em>semat-e</em> vs. <em>samt-e</em>) + Tanvin &laquo;حتما&raquo; + Tashdid &laquo;دقّت&raquo;</h2>
+      <div class="fa-text" lang="fa">مدیر جدید در سمت ریاست، حتما با دقت به سمت اتاق جلسات رفت.</div>
+      <div class="meta">
+        <div><strong>G2P (Repr. 2):</strong> modire1 j/did d/r sem/te1 riyas/t, h/tm/n ba deqq/t be s/mte1 otaqe1 j/l/sat r/ft.</div>
+        <div><strong>Piper IPA:</strong> modˈire dʒadˈid dar semˈate rijɑsˈat, hˈatman bɑ dˈeq1q1at be sˈamte otˈɑq1e dʒalasˈɑt rˈaft.</div>
+      </div>
+      <div class="audio-block">
+        <div class="audio-label"><span>Full Pipeline Output (<code>full_pipe_tts_1.wav</code>)</span><span class="pill">Duration: 5.4557s &bull; RMS: &minus;17.81 dB &bull; F0: 231.34 Hz &bull; Silence: 12.5%</span></div>
+        <audio controls src="../output/full_pipe_tts_1.wav"></audio>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="card">
+      <h2>Sentence 2 &mdash; Homograph &laquo;کرم&raquo; (<em>karam-e</em> vs. <em>kerm-e</em>) + &laquo;مرد&raquo; + Tashdid &laquo;شکّی&raquo;</h2>
+      <div class="fa-text" lang="fa">در کرم مرد بزرگ شکی نیست، ولی کرم کوچک روی برگ درخت بود.</div>
+      <div class="meta">
+        <div><strong>G2P (Repr. 2):</strong> d/r k/r/me1 m/rde1 bozorg $/kki nist, v/li kerme1 kuC/k ruye b/rge1 der/xt bud.</div>
+        <div><strong>Piper IPA:</strong> dar karˈame mˈarde bozˈorɡ ʃakkˈi nˈist, vˈali kˈerme kutʃˈak rujˈe bˈarɡe derˈaxt bˈud.</div>
+      </div>
+      <div class="audio-block">
+        <div class="audio-label"><span>Full Pipeline Output (<code>full_pipe_tts_2.wav</code>)</span><span class="pill">Duration: 4.8520s &bull; RMS: &minus;16.10 dB &bull; F0: 235.71 Hz &bull; Silence: 10.7%</span></div>
+        <audio controls src="../output/full_pipe_tts_2.wav"></audio>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="card">
+      <h2>Sentence 3 &mdash; Homograph &laquo;مهر&raquo; (<em>mohr-e</em> vs. <em>mehr</em>) + Tashdid &laquo;محبّت&raquo; + Question Intonation (؟)</h2>
+      <div class="fa-text" lang="fa">آیا مهر استاد دانشگاه با مهر و محبت بر برگه امتحان زده شد؟</div>
+      <div class="meta">
+        <div><strong>G2P (Repr. 2):</strong> aya mohre1 ostade1 dane$gah ba mehr v/ moh/bb/t b/r b/rgeye emtehan z/de $od?</div>
+        <div><strong>Piper IPA:</strong> ɑjˈɑ mˈohre ostˈɑde dɑneʃɡˈɑh bɑ mˈehr vˈa mohabbˈat bˈar bˈarɡeje emtehˈɑn zadˈe ʃˈod?</div>
+      </div>
+      <div class="audio-block">
+        <div class="audio-label"><span>Full Pipeline Output (<code>full_pipe_tts_3.wav</code>)</span><span class="pill">Duration: 5.3844s &bull; RMS: &minus;15.92 dB &bull; F0: 237.34 Hz &bull; Silence: 9.7%</span></div>
+        <audio controls src="../output/full_pipe_tts_3.wav"></audio>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="card">
+      <h2>Sentence 4 &mdash; Homograph &laquo;ارّه&raquo; (<em>arre</em> = saw) + Tashdid &laquo;نجّار / ارّه / دقّت&raquo;</h2>
+      <div class="fa-text" lang="fa">نجار با تیغه اره چوب درخت را با دقت فراوان برید.</div>
+      <div class="meta">
+        <div><strong>G2P (Repr. 2):</strong> n/jjar ba tiqeye1 /rre Cub der/xt ra ba deqq/te1 f/ravan borid.</div>
+        <div><strong>Piper IPA:</strong> nadʒdʒˈɑr bɑ tiq1ˈeje arrˈe tʃˈub derˈaxt rɑ bɑ deq1q1ˈate farɑvˈɑn borˈid.</div>
+      </div>
+      <div class="audio-block">
+        <div class="audio-label"><span>Full Pipeline Output (<code>full_pipe_tts_4.wav</code>)</span><span class="pill">Duration: 4.4427s &bull; RMS: &minus;16.22 dB &bull; F0: 225.38 Hz &bull; Silence: 10.8%</span></div>
+        <audio controls src="../output/full_pipe_tts_4.wav"></audio>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="card">
+      <h2>Sentence 5 &mdash; Block 1 Text Normalization: Jalali Date (<code>۱۴۰۳/۰۷/۱۵</code>) + Abbreviation (<code>د.</code>) + ZWNJ</h2>
+      <div class="fa-text" lang="fa">جلسه دفاع در تاریخ ۱۴۰۳/۰۷/۱۵ با حضور د. علوی برگزار می‌شود.</div>
+      <div class="fa-norm" lang="fa"><strong>نرمال‌سازی مرحله ۱:</strong> جلسه دفاع در تاریخ پانزدهم مهر هزار و چهارصد و سه با حضور دکتر علوی برگزار می‌شود.</div>
+      <div class="meta">
+        <div><strong>G2P (Repr. 2):</strong> j/l/seye defa d/r tarixe1 panzd/home1 mehre1 hezar o C/hars/d o se ba hozure1 doktor al/vi b/rgozar mi$/v/d.</div>
+        <div><strong>Piper IPA:</strong> dʒalasejˈe defˈɑ dar tɑrˈixe pɑnzdahˈome mˈehre hezˈɑr o tʃahɑrsˈad o sˈe bɑ hozˈure doktˈor ɑlavˈi barɡozˈɑr mˈiʃavad.</div>
+      </div>
+      <div class="audio-block">
+        <div class="audio-label"><span>Full Pipeline Output (<code>full_pipe_tts_5.wav</code>)</span><span class="pill">Duration: 7.5707s &bull; RMS: &minus;16.86 dB &bull; F0: 221.35 Hz &bull; Silence: 6.9%</span></div>
+        <audio controls src="../output/full_pipe_tts_5.wav"></audio>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="card">
+      <h2>Sentence 6 &mdash; Block 1 Text Normalization: Percentage (<code>۲۵٪</code>) + Number (<code>۱۲۰</code>) + Tashdid &laquo;معلّم&raquo;</h2>
+      <div class="fa-text" lang="fa">معلم مدرسه گفت ۲۵٪ از ۱۲۰ دانش‌آموز در آزمون قبول شدند.</div>
+      <div class="fa-norm" lang="fa"><strong>نرمال‌سازی مرحله ۱:</strong> معلم مدرسه گفت بیست و پنج درصد از صد و بیست دانش‌آموز در آزمون قبول شدند.</div>
+      <div class="meta">
+        <div><strong>G2P (Repr. 2):</strong> mo@/lleme1 m/drese goft bistop/nj d/rs/d /z s/d o bist dane$amuz d/r azmun q/bul $od/nd.</div>
+        <div><strong>Piper IPA:</strong> moʔallˈeme madresˈe ɡˈoft bistopˈandʒ darsˈad az sˈad o bˈist dɑneʃɑmˈuz dar ɑzmˈun q1abˈul ʃodˈand.</div>
+      </div>
+      <div class="audio-block">
+        <div class="audio-label"><span>Full Pipeline Output (<code>full_pipe_tts_6.wav</code>)</span><span class="pill">Duration: 6.0130s &bull; RMS: &minus;17.42 dB &bull; F0: 230.91 Hz &bull; Silence: 8.0%</span></div>
+        <audio controls src="../output/full_pipe_tts_6.wav"></audio>
+      </div>
+    </div>
+
+    <!-- Stage 9: Scales & Chunking -->
+    <div class="card">
+      <h2>Block 9 &mdash; Inference Scales Control (<code>noise / length / noise_w</code>) &amp; Multi-Chunk Synthesis</h2>
+      <div class="fa-text" lang="fa">معلم مدرسه بیش از ۱۲۰ صفحه کتاب را می‌خواند.</div>
+      <div class="grid-3">
+        <div class="audio-block">
+          <div class="audio-label"><span>Fast (<code>length=0.85</code>)</span><span class="pill">3.4555s</span></div>
+          <audio controls src="../output/full_pipe_scale_fast.wav"></audio>
+          <div class="meta">RMS: &minus;16.14 dB &bull; F0: 227.99 Hz</div>
+        </div>
+        <div class="audio-block">
+          <div class="audio-label"><span>Normal (<code>length=1.00</code>)</span><span class="pill">3.9592s</span></div>
+          <audio controls src="../output/full_pipe_scale_normal.wav"></audio>
+          <div class="meta">RMS: &minus;18.14 dB &bull; F0: 230.10 Hz</div>
+        </div>
+        <div class="audio-block">
+          <div class="audio-label"><span>Slow (<code>length=1.25</code>)</span><span class="pill">4.7166s</span></div>
+          <audio controls src="../output/full_pipe_scale_slow.wav"></audio>
+          <div class="meta">RMS: &minus;15.48 dB &bull; F0: 223.90 Hz</div>
+        </div>
+      </div>
+      <br>
+      <div class="fa-text" lang="fa">مدیر جدید در سمت ریاست، گزارش ۲۵٪ بودجه را بررسی کرد... سپس در تاریخ ۱۴۰۳/۰۸/۲۵ نتیجه را اعلام کرد.</div>
+      <div class="audio-block">
+        <div class="audio-label"><span>3-Chunk Normalized &amp; Silence-Trimmed Synthesis (<code>full_pipe_interrupt_full.wav</code>)</span><span class="pill">Duration: 12.2359s &bull; RMS: &minus;16.31 dB &bull; F0: 224.19 Hz</span></div>
+        <audio controls src="../output/full_pipe_interrupt_full.wav"></audio>
+      </div>
+    </div>
+
+    <!-- Verification Table -->
+    <div class="card">
+      <h2>End-to-End Automated Test Suite Coverage (<code>11 / 11 Passed</code>)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Pipeline Block</th>
+            <th>Test Case</th>
+            <th>Verified Behavior</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Block 1: Text Normalization</strong></td><td><code>TestBlock1TextNormalization</code> (2 tests)</td><td>Jalali dates, numbers, decimals, <code>%</code>, abbreviations (<code>د.</code>, <code>km</code>), ZWNJ &amp; Arabic chars</td><td><strong>OK</strong></td></tr>
+          <tr><td><strong>Block D: Homograph Dataset</strong></td><td><code>TestBlockDDatasetAndRepr2</code> (2 tests)</td><td><code>Repr. 1 &rarr; Repr. 2</code> (<code>C</code>, <code>@</code>), word/lemma split (0 overlap), 6 real TTS sentences</td><td><strong>OK</strong></td></tr>
+          <tr><td><strong>Blocks 2&ndash;4: G2P, IDs &amp; Prosody</strong></td><td><code>TestBlock234G2PAndProsody</code> + <code>TestPersianG2PAlignment</code> (3 tests)</td><td><code>[PAD, BOS, PAD, ..., EOS, PAD]</code> parity, 5 prosody tags, zero OOV symbols</td><td><strong>OK</strong></td></tr>
+          <tr><td><strong>Blocks 5&ndash;8 &amp; T1&ndash;T3: VITS + MPD</strong></td><td><code>TestBlock5678T1T2T3VITSArchitecture</code> + <code>TestUpgradedPersianVits</code> (3 tests)</td><td>TextEncoder, SDP+MAS, Flow inverse, HiFi-GAN, <code>PosteriorEncoder</code>, 1 Scale + 5 Period Discriminators</td><td><strong>OK</strong></td></tr>
+          <tr><td><strong>Block 9: Export + Inference</strong></td><td><code>TestBlock9InferenceAndRealTTS</code> (1 test)</td><td>6 benchmark WAVs + 3 scale WAVs + 3-chunk WAV + interrupt + strict RMS/F0/silence gates</td><td><strong>OK</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
