@@ -191,6 +191,7 @@ def load_and_split_dataset(
         item = {
             "grapheme": g_orig,
             "input_text": g_norm,
+            "raw_phoneme_csv": p_orig,
             "target_ge2pe": target_ge2pe,
             "eval_target": canonicalize_for_eval(target_ge2pe),
             "homograph_grapheme": hw_g,
@@ -404,9 +405,13 @@ def _ensure_homo_ge2pe_dir(cache_dir: str = "pretrained") -> str:
 def _raw_ge2pe_to_ids(g2p_obj: Any, raw_ge2pe_str: str, original_text: str) -> Tuple[List[int], List[int]]:
     from symbols import PROSODY_TAGS
 
-    pairs = g2p_obj._ge2pe_str_to_phoneme_tag_pairs(raw_ge2pe_str, original_text=original_text)
-    phoneme_ids: List[int] = []
-    prosody_ids: List[int] = []
+    ge2pe_text = raw_ge2pe_str.strip()
+    if ge2pe_text and ge2pe_text[-1] not in ".!?؟،؛":
+        ge2pe_text = ge2pe_text + ("?" if ("؟" in original_text or "?" in original_text) else ".")
+
+    pairs = g2p_obj._ge2pe_str_to_phoneme_tag_pairs(ge2pe_text, original_text=original_text)
+    phoneme_ids: List[int] = [g2p_obj.pad_id]
+    prosody_ids: List[int] = [PROSODY_TAGS["NORMAL"]]
     for sym, p_tag in pairs:
         for sub_sym in g2p_obj._split_ipa_for_piper(sym):
             p_id = g2p_obj.phoneme_id_map.get(sub_sym, g2p_obj.pad_id)
@@ -415,6 +420,23 @@ def _raw_ge2pe_to_ids(g2p_obj: Any, raw_ge2pe_str: str, original_text: str) -> T
             phoneme_ids.append(g2p_obj.pad_id)
             prosody_ids.append(PROSODY_TAGS["NORMAL"])
     return phoneme_ids, prosody_ids
+
+
+def _clean_tts_audio(wav: np.ndarray, sr: int = 22050, target_peak: float = 0.85) -> np.ndarray:
+    """Trim excessive leading/trailing silence from VITS output and normalize peak cleanly."""
+    arr = np.asarray(wav, dtype=np.float32).flatten()
+    if len(arr) == 0:
+        return arr
+    active = np.where(np.abs(arr) > 0.008)[0]
+    if len(active) > 0:
+        pad_n = int(0.06 * sr)
+        s_idx = max(0, int(active[0]) - pad_n)
+        e_idx = min(len(arr), int(active[-1]) + pad_n)
+        arr = arr[s_idx:e_idx]
+    peak = float(np.max(np.abs(arr))) if len(arr) else 0.0
+    if peak > 1e-4:
+        arr = arr * (float(target_peak) / peak)
+    return np.clip(arr, -1.0, 1.0)
 
 
 def run_g2p_finetune_and_eval(
@@ -498,10 +520,17 @@ def run_g2p_finetune_and_eval(
         for idx, (item, raw_p) in enumerate(zip(showcase_items, before_show_preds), start=1):
             ctx = before_g2p.homo_ge2pe.extract_context_embedding(item["input_text"])
             p_ids, pr_ids = _raw_ge2pe_to_ids(before_g2p, raw_p, item["grapheme"])
-            wav = synthesize_with_upgraded_onnx(ort_sess, p_ids, pr_ids, ctx, context_dim=ctx_dim)
+            if hasattr(ort, "set_seed"):
+                ort.set_seed(42)
+            wav = _clean_tts_audio(
+                synthesize_with_upgraded_onnx(
+                    ort_sess, p_ids, pr_ids, ctx, context_dim=ctx_dim,
+                    length_scale=1.0, noise_scale=0.5, noise_w=0.35,
+                )
+            )
             before_wavs.append(wav)
             save_wav(os.path.join(output_dir, f"g2p_test{idx}_before.wav"), wav, 22050)
-        pause = np.zeros(int(22050 * 0.35), dtype=np.float32)
+        pause = np.zeros(int(22050 * 0.25), dtype=np.float32)
         all_b = []
         for w in before_wavs:
             all_b.extend([w, pause])
@@ -654,10 +683,17 @@ def run_g2p_finetune_and_eval(
         for idx, (item, raw_p) in enumerate(zip(showcase_items, after_show_preds), start=1):
             ctx = after_g2p.homo_ge2pe.extract_context_embedding(item["input_text"])
             p_ids, pr_ids = _raw_ge2pe_to_ids(after_g2p, raw_p, item["grapheme"])
-            wav = synthesize_with_upgraded_onnx(ort_sess, p_ids, pr_ids, ctx, context_dim=ctx_dim)
+            if hasattr(ort, "set_seed"):
+                ort.set_seed(42)
+            wav = _clean_tts_audio(
+                synthesize_with_upgraded_onnx(
+                    ort_sess, p_ids, pr_ids, ctx, context_dim=ctx_dim,
+                    length_scale=1.0, noise_scale=0.5, noise_w=0.35,
+                )
+            )
             after_wavs.append(wav)
             save_wav(os.path.join(output_dir, f"g2p_test{idx}_after.wav"), wav, 22050)
-        pause = np.zeros(int(22050 * 0.35), dtype=np.float32)
+        pause = np.zeros(int(22050 * 0.25), dtype=np.float32)
         all_a = []
         for w in after_wavs:
             all_a.extend([w, pause])
@@ -744,6 +780,7 @@ def run_g2p_finetune_and_eval(
                 "homograph_grapheme": item["homograph_grapheme"],
                 "homograph_phoneme_csv": item["homograph_phoneme"],
                 "homograph_target_ge2pe": item["homograph_eval"],
+                "raw_phoneme_csv": item.get("raw_phoneme_csv", ""),
                 "target_ge2pe": item["target_ge2pe"],
                 "before_pred_raw": before_show_metrics["items"][i]["pred_raw"],
                 "before_homograph_hit": before_show_metrics["items"][i]["homograph_hit"],
