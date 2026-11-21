@@ -44,10 +44,7 @@ def _normalize_persian_input(text: str) -> str:
 
 
 def _csv_word_to_ge2pe(pt: str) -> str:
-    while pt.endswith("?"):
-        pt = pt[:-1]
-    if pt.startswith("?"):
-        pt = pt[1:]
+    """Convert Repr. 1 (dataset Pinglish) word into Repr. 2 (Homo-GE2PE-Persian)."""
     out: List[str] = []
     for c in pt:
         if c == "A":
@@ -56,8 +53,8 @@ def _csv_word_to_ge2pe(pt: str) -> str:
             out.append("/")
         elif c == "S":
             out.append("$")
-        elif c == "C":
-            out.append("c")
+        elif c in ("C", "c"):
+            out.append("C")
         elif c == "Z":
             out.append(";")
         elif c == "?":
@@ -68,11 +65,13 @@ def _csv_word_to_ge2pe(pt: str) -> str:
 
 
 def csv_phoneme_to_ge2pe(grapheme: str, phoneme: str) -> str:
-    """Convert dataset Pinglish phoneme string into `Homo-GE2PE-Persian` target format."""
+    """Convert Repr. 1 dataset Pinglish string into Repr. 2 (`Homo-GE2PE-Persian`) target format."""
     fixed: List[str] = []
     for ch in phoneme.strip():
         if ch in ("A", "S", "C", "Z"):
             fixed.append(ch)
+        elif ch == "c":
+            fixed.append("C")
         elif ch == "w":
             fixed.append("v")
         elif "A" <= ch <= "Z":
@@ -84,8 +83,14 @@ def csv_phoneme_to_ge2pe(grapheme: str, phoneme: str) -> str:
     s = "".join(fixed)
 
     g_raw = grapheme.replace("ك", "ک").replace("ي", "ی").replace("ى", "ی").strip()
+    g_raw_toks = re.sub(r"[،؛.,!\"«»:\s]+", " ", g_raw.replace("\u200c", "")).strip().split()
     g_toks = re.sub(r"[،؛؟.,!\"«»:\s]+", " ", g_raw.replace("\u200c", "")).strip().split()
     p_toks = re.sub(r"[،؛؟.,!\"«»:\s]+", " ", s).strip().split()
+
+    if len(g_raw_toks) == len(p_toks):
+        for idx, (gr, pt) in enumerate(zip(g_raw_toks, p_toks)):
+            if gr.endswith(("؟", "?")) and pt.endswith("?"):
+                p_toks[idx] = pt[:-1]
 
     out_toks = [_csv_word_to_ge2pe(pt) for pt in p_toks]
     if len(g_toks) == len(out_toks):
@@ -94,7 +99,7 @@ def csv_phoneme_to_ge2pe(grapheme: str, phoneme: str) -> str:
                 len(gw) >= 2
                 and gw[-1] not in "هیآاوؤئة"
                 and pw.endswith("e")
-                and pw not in ("be", "ke", "ce", "se", "ne")
+                and pw not in ("be", "ke", "Ce", "ce", "se", "ne")
             ):
                 out_toks[idx] = pw + "1"
             elif gw.endswith("های") and pw.endswith("haye"):
@@ -103,19 +108,15 @@ def csv_phoneme_to_ge2pe(grapheme: str, phoneme: str) -> str:
 
 
 def canonicalize_for_eval(phon: str) -> str:
-    """Normalize both base Homo-GE2PE and dataset predictions cleanly for fair comparison.
+    """Normalize both base Homo-GE2PE and dataset predictions strictly in Repr. 2.
 
-    Strips formatting-only Ezafe marker `1`, punctuation, and word-initial `@` so
-    evaluation isolates real vowel/consonant/homograph errors rather than punctuation quirks.
+    Strips only formatting Ezafe marker `1` and punctuation while preserving `@` and `C`
+    so evaluation measures exact Repr. 2 (`Homo-GE2PE`) phoneme fidelity.
     """
     toks = re.sub(r"[،؛؟.,!\"«»:\s]+", " ", phon).strip().split()
     cleaned: List[str] = []
     for tok in toks:
         if tok.endswith("1"):
-            tok = tok[:-1]
-        if tok.startswith("@") and len(tok) > 1:
-            tok = tok[1:]
-        if tok.endswith("@") and len(tok) > 1:
             tok = tok[:-1]
         cleaned.append(tok)
     return " ".join(t for t in cleaned if t)

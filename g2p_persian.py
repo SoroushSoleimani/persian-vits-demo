@@ -130,7 +130,7 @@ class HomoGE2PEWrapper:
     def _preserve_explicit_tashdid(raw_w: str, core: str) -> str:
         if "\u0651" not in raw_w:
             return core
-        consonants = set("bpjdrzs$qklmnfthxvcg;@y")
+        consonants = set("bpjdrzs$qklmnfthxvcCg;@y")
         if any(core[i] == core[i + 1] and core[i] in consonants for i in range(len(core) - 1)):
             return core
         letter_to_ge2pe = {
@@ -295,6 +295,7 @@ GE2PE_CHAR_TO_IPA: Dict[str, str] = {
     "$": "ʃ",
     ";": "ʒ",
     "@": "ʔ",
+    "C": "tʃ",
     "c": "tʃ",
     "j": "dʒ",
     "g": "ɡ",
