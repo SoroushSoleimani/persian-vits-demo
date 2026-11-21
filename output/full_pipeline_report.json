@@ -1,0 +1,119 @@
+{
+  "onnx_path": "output/persian_vits_upgraded.onnx",
+  "context_dim": 512,
+  "homo_ge2pe_attached": true,
+  "extra_real_tts_results": [
+    {
+      "id": "tts_1",
+      "raw_text": "تاریخ جلسه ۱۴۰۳/۰۸/۲۵ با د. رضایی در سمت ریاست برگزار می‌شود؟",
+      "normalized_text": "تاریخ جلسه بیست و پنجم آبان یک هزار و چهارصد و سه با دکتر رضایی در سمت ریاست برگزار می‌شود؟",
+      "focus": "Date + Abbreviation (د.) + Homograph (semat) + Question (؟)",
+      "wav_path": "output/full_pipe_tts_1.wav",
+      "elapsed_ms": 1502.92,
+      "duration_sec": 8.2026,
+      "rms_db": -18.37,
+      "peak": 0.85,
+      "mean_f0_hz": 234.79,
+      "silence_ratio": 0.063
+    },
+    {
+      "id": "tts_2",
+      "raw_text": "مدیر جدید ۲۵٪ بودجه را با دقت فراوان بررسی کرد.",
+      "normalized_text": "مدیر جدید بیست و پنج درصد بودجه را با دقت فراوان بررسی کرد.",
+      "focus": "Percentage (۲۵٪) + Tashdid (deqqat) + ZWNJ/Ezafe",
+      "wav_path": "output/full_pipe_tts_2.wav",
+      "elapsed_ms": 962.49,
+      "duration_sec": 5.4765,
+      "rms_db": -16.59,
+      "peak": 0.85,
+      "mean_f0_hz": 230.9,
+      "silence_ratio": 0.081
+    },
+    {
+      "id": "tts_3",
+      "raw_text": "معلم مدرسه بیش از ۱۲۰ صفحه کتاب را می‌خواند.",
+      "normalized_text": "معلم مدرسه بیش از صد و بیست صفحه کتاب را می‌خواند.",
+      "focus": "Number (۱۲۰) + Tashdid+Ezafe (mo'allem-e) + ZWNJ (می‌خواند)",
+      "wav_path": "output/full_pipe_tts_3.wav",
+      "elapsed_ms": 724.6,
+      "duration_sec": 4.0518,
+      "rms_db": -17.95,
+      "peak": 0.85,
+      "mean_f0_hz": 226.17,
+      "silence_ratio": 0.069
+    },
+    {
+      "id": "tts_4",
+      "raw_text": "تیغه اره در مسافت ۵ km بسیار تیز می‌ماند.",
+      "normalized_text": "تیغه اره در مسافت پنج کیلومتر بسیار تیز می‌ماند.",
+      "focus": "Homograph (arre) + Number + Abbreviation (km) + ZWNJ",
+      "wav_path": "output/full_pipe_tts_4.wav",
+      "elapsed_ms": 728.58,
+      "duration_sec": 4.6104,
+      "rms_db": -15.68,
+      "peak": 0.85,
+      "mean_f0_hz": 235.91,
+      "silence_ratio": 0.035
+    },
+    {
+      "id": "tts_5",
+      "raw_text": "باد از سمت دریا با سرعت ۳.۵ برابر به سوی ساحل می‌وزید.",
+      "normalized_text": "باد از سمت دریا با سرعت سه ممیز پنج برابر به سوی ساحل می‌وزید.",
+      "focus": "Homograph (samt) + Decimal (۳.۵) + ZWNJ (می‌وزید)",
+      "wav_path": "output/full_pipe_tts_5.wav",
+      "elapsed_ms": 917.47,
+      "duration_sec": 5.421,
+      "rms_db": -19.94,
+      "peak": 0.85,
+      "mean_f0_hz": 226.13,
+      "silence_ratio": 0.067
+    }
+  ],
+  "scale_sweep": {
+    "fast": {
+      "scales": [
+        0.5,
+        0.85,
+        0.35
+      ],
+      "duration_sec": 3.3905,
+      "rms_db": -17.34,
+      "peak": 0.85,
+      "mean_f0_hz": 234.65,
+      "silence_ratio": 0.012
+    },
+    "normal": {
+      "scales": [
+        0.5,
+        1.0,
+        0.35
+      ],
+      "duration_sec": 3.9941,
+      "rms_db": -17.24,
+      "peak": 0.85,
+      "mean_f0_hz": 236.76,
+      "silence_ratio": 0.061
+    },
+    "slow": {
+      "scales": [
+        0.5,
+        1.25,
+        0.35
+      ],
+      "duration_sec": 4.8619,
+      "rms_db": -18.27,
+      "peak": 0.85,
+      "mean_f0_hz": 223.42,
+      "silence_ratio": 0.116
+    }
+  },
+  "multi_chunk_full": {
+    "chunks": 3,
+    "normalized": "تاریخ جلسه بیست و پنجم آبان یک هزار و چهارصد و سه با دکتر رضایی است، لطفا با دقت گزارش بیست و پنج درصد را آماده کنید... سپس نتیجه را ارسال کنید.",
+    "duration_sec": 12.4809,
+    "rms_db": -16.87,
+    "peak": 0.85,
+    "mean_f0_hz": 228.11,
+    "silence_ratio": 0.128
+  }
+}

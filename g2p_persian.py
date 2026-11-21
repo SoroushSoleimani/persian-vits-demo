@@ -130,7 +130,7 @@ class HomoGE2PEWrapper:
     def _preserve_explicit_tashdid(raw_w: str, core: str) -> str:
         if "\u0651" not in raw_w:
             return core
-        consonants = set("bpjdrzs$qklmnfthxvcg;@y")
+        consonants = set("bpjdrzs$qklmnfthxvcCg;@y")
         if any(core[i] == core[i + 1] and core[i] in consonants for i in range(len(core) - 1)):
             return core
         letter_to_ge2pe = {
@@ -295,6 +295,7 @@ GE2PE_CHAR_TO_IPA: Dict[str, str] = {
     "$": "ʃ",
     ";": "ʒ",
     "@": "ʔ",
+    "C": "tʃ",
     "c": "tʃ",
     "j": "dʒ",
     "g": "ɡ",
@@ -839,9 +840,9 @@ class PersianG2PProsody:
         else:
             phoneme_tag_pairs = self._context_fallback_phoneme_tag_pairs(text)
 
-        phonemes_out: List[str] = []
-        phoneme_ids: List[int] = []
-        prosody_ids: List[int] = []
+        phonemes_out: List[str] = [PAD] if intersperse_blank else []
+        phoneme_ids: List[int] = [self.pad_id] if intersperse_blank else []
+        prosody_ids: List[int] = [PROSODY_TAGS["NORMAL"]] if intersperse_blank else []
 
         for sym, p_tag in phoneme_tag_pairs:
             for sub_sym in self._split_ipa_for_piper(sym):
