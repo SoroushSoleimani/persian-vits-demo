@@ -139,7 +139,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0606,
       "before_wav": "output/g2p_test1_before.wav",
-      "after_wav": "output/g2p_test1_after.wav"
+      "after_wav": "output/g2p_test1_after.wav",
+      "raw_phoneme_csv": "?abar SerkathAye fanavariye donyA dar SilikonvAli mostaqar hastand"
     },
     {
       "id": 2,
@@ -156,7 +157,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0,
       "before_wav": "output/g2p_test2_before.wav",
-      "after_wav": "output/g2p_test2_after.wav"
+      "after_wav": "output/g2p_test2_after.wav",
+      "raw_phoneme_csv": "ranginkamAn dar kenAre ?abrhA dide miSod"
     },
     {
       "id": 3,
@@ -173,7 +175,8 @@
       "after_homograph_hit": false,
       "after_per": 0.0175,
       "before_wav": "output/g2p_test3_before.wav",
-      "after_wav": "output/g2p_test3_after.wav"
+      "after_wav": "output/g2p_test3_after.wav",
+      "raw_phoneme_csv": "?in ?AjorhA be dalile qedmate ziyAd ?arzeSe tArixi dArand"
     },
     {
       "id": 4,
@@ -190,7 +193,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0294,
       "before_wav": "output/g2p_test4_before.wav",
-      "after_wav": "output/g2p_test4_after.wav"
+      "after_wav": "output/g2p_test4_after.wav",
+      "raw_phoneme_csv": "?ajre sabr govArtar ?az ?asal ?ast"
     },
     {
       "id": 5,
@@ -207,7 +211,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0652,
       "before_wav": "output/g2p_test5_before.wav",
-      "after_wav": "output/g2p_test5_after.wav"
+      "after_wav": "output/g2p_test5_after.wav",
+      "raw_phoneme_csv": "javAbe ?in soAl faqat yek kalame ast Are yA na."
     },
     {
       "id": 6,
@@ -224,7 +229,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0741,
       "before_wav": "output/g2p_test6_before.wav",
-      "after_wav": "output/g2p_test6_after.wav"
+      "after_wav": "output/g2p_test6_after.wav",
+      "raw_phoneme_csv": "tiqeye arre besiyAr tiz ast."
     },
     {
       "id": 7,
@@ -241,7 +247,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0,
       "before_wav": "output/g2p_test7_before.wav",
-      "after_wav": "output/g2p_test7_after.wav"
+      "after_wav": "output/g2p_test7_after.wav",
+      "raw_phoneme_csv": "bAd ?az samte daryA vazidan gereft"
     },
     {
       "id": 8,
@@ -258,7 +265,8 @@
       "after_homograph_hit": true,
       "after_per": 0.0,
       "before_wav": "output/g2p_test8_before.wav",
-      "after_wav": "output/g2p_test8_after.wav"
+      "after_wav": "output/g2p_test8_after.wav",
+      "raw_phoneme_csv": "semate ?u dar ?in sAzmAn nAzere keyfiye mahasulAt ?ast"
     }
   ]
 }

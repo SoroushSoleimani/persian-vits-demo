@@ -129,6 +129,18 @@
       margin-top: 8px;
       word-break: break-word;
     }
+    .labels-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 11px;
+      margin: 8px 0 12px;
+      color: #1e293b;
+      word-break: break-word;
+    }
+    .labels-box div + div { margin-top: 4px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
     th, td { padding: 8px 10px; border: 1px solid var(--border); text-align: center; }
     th { background: var(--surface); font-weight: 600; }
@@ -213,6 +225,10 @@
     <div class="card">
       <h2>Test 1 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>ابر</code> (@/b/r = super-)</h2>
       <div class="fa-text" lang="fa">أبر شرکت‌های فناوری دنیا در سیلیکون‌ولی مستقر هستند.</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> ?abar SerkathAye fanavariye donyA dar SilikonvAli mostaqar hastand</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> @/b/r $erk/thaye1 f/n/v/riye donya d/r $ilikonvali most/q/r h/st/nd</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (PER 0.0758)</span><span class="pill pill-ok">OK</span></div>
@@ -230,6 +246,10 @@
     <div class="card">
       <h2>Test 2 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>ابر</code> (@/br = cloud)</h2>
       <div class="fa-text" lang="fa">رنگین‌کمان در کنار ابرها دیده می‌شد</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> ranginkamAn dar kenAre ?abrhA dide miSod</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> r/ngink/man d/r kenare1 @/brha dide mi$od</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (PER 0.0500)</span><span class="pill pill-ok">OK</span></div>
@@ -248,6 +268,10 @@
     <div class="card">
       <h2>Test 3 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>اجر</code> (@ajor = brick, written without آ)</h2>
       <div class="fa-text" lang="fa">این اجرها به دلیل قدمت زیاد، ارزش تاریخی دارند.</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> ?in ?AjorhA be dalile qedmate ziyAd ?arzeSe tArixi dArand</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> @in @ajorha be d/lile1 qedm/te1 ziyad @/rze$e1 tarixi dar/nd</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (PER 0.0175)</span><span class="pill pill-miss">MISS</span></div>
@@ -265,6 +289,10 @@
     <div class="card">
       <h2>Test 4 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>اجر</code> (@/jr = reward)</h2>
       <div class="fa-text" lang="fa">اجر صبر، گواراتر از عسل است.</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> ?ajre sabr govArtar ?az ?asal ?ast</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> @/jre1 s/br govart/r @/z @/s/l @/st</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (PER 0.0294)</span><span class="pill pill-ok">OK</span></div>
@@ -283,6 +311,10 @@
     <div class="card">
       <h2>Test 5 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>اره</code> (@are = yes)</h2>
       <div class="fa-text" lang="fa">جواب این سوال فقط یک کلمه است: اره یا نه؟!</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> javAbe ?in soAl faqat yek kalame ast Are yA na.</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> j/vabe1 @in soal f/q/t yek k/l/me /st are ya n/</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (PER 0.0652)</span><span class="pill pill-ok">OK</span></div>
@@ -300,6 +332,10 @@
     <div class="card">
       <h2>Test 6 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>اره</code> (@/rre = saw &mdash; fixed!)</h2>
       <div class="fa-text" lang="fa">تیغه اره بسیار تیز است.</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> tiqeye arre besiyAr tiz ast.</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> tiqeye /rre besiyar tiz /st</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (wrong &ldquo;@are&rdquo;, PER 0.1481)</span><span class="pill pill-miss">MISS</span></div>
@@ -318,6 +354,10 @@
     <div class="card">
       <h2>Test 7 <span class="pill pill-train">TRAIN (Seen)</span> &mdash; <code>سمت</code> (s/mt = direction &mdash; fixed!)</h2>
       <div class="fa-text" lang="fa">باد از سمت دریا وزیدن گرفت.</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> bAd ?az samte daryA vazidan gereft</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> bad @/z s/mte1 d/rya v/zid/n gereft</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (wrong &ldquo;sem/te1&rdquo;, PER 0.0588)</span><span class="pill pill-miss">MISS</span></div>
@@ -335,6 +375,10 @@
     <div class="card">
       <h2>Test 8 <span class="pill pill-test">TEST (Held-Out)</span> &mdash; <code>سمت</code> (sem/t = role)</h2>
       <div class="fa-text" lang="fa">سمت او در این سازمان، ناظر کیفی محصولات است.</div>
+      <div class="labels-box">
+        <div><strong>Dataset Label (Repr. 1 - Before Convert):</strong> semate ?u dar ?in sAzmAn nAzere keyfiye mahasulAt ?ast</div>
+        <div><strong>Converted Label (Repr. 2 - After Convert):</strong> sem/te1 @u d/r @in sazman nazere1 keyfiye m/h/sulat @/st</div>
+      </div>
       <div class="grid-2">
         <div class="audio-block">
           <div class="audio-label"><span>BEFORE (PER 0.0000)</span><span class="pill pill-ok">OK</span></div>
