@@ -2,15 +2,15 @@
 
 An end-to-end **Persian Text-to-Speech (TTS)** fine-tuning and ONNX export pipeline built directly on real **Piper / VITS PyTorch architectures** ([`SynthesizerTrn`](piper_vits/vits_models.py) + [`MultiPeriodDiscriminator`](piper_vits/vits_models.py) + Cython [`monotonic_align`](piper_vits/monotonic_align/core.pyx)), combining [`MahtaFetrat/Homo-GE2PE-Persian`](https://huggingface.co/MahtaFetrat/Homo-GE2PE-Persian), [`MahtaFetrat/Mana-Persian-Piper`](https://huggingface.co/MahtaFetrat/Mana-Persian-Piper), and [`MahtaFetrat/Mana-TTS`](https://huggingface.co/datasets/MahtaFetrat/Mana-TTS).
 
-> **Live Interactive Audio Showcase (`github.io`):** [https://soroushsoleimani.github.io/persian-vits-demo/](https://soroushsoleimani.github.io/persian-vits-demo/) — Listen to all 5 Before/After comparisons, inspect IPA streams, Whisper ASR CER metrics, training curves, and the full pipeline diagram directly in your browser.
+> **Live Full-Pipeline Audio Showcase (`github.io`):** [https://soroushsoleimani.github.io/persian-vits-demo/full-pipeline/](https://soroushsoleimani.github.io/persian-vits-demo/full-pipeline/) — Listen to all 6 end-to-end benchmark sentences (Homographs, Tashdid, Jalali Dates, Percentages, Numbers, Abbreviations, Question Intonation, Speed Scales, and Multi-Chunk Interrupt) and inspect the full pipeline diagram directly in your browser.
 >
-> **Verification Status:** Tested end-to-end on Kaggle **GPU (`CUDA`)** across **700 `Mana-TTS` studio Persian clips** for **16 epochs** (`batch_size=8`), exported to a verified dynamic-axis **`65.08 MB` ONNX model** ([`output/persian_vits_upgraded.onnx`](output/persian_vits_upgraded.onnx)), and evaluated side-by-side against `fa_IR-amir-medium` + `espeak-ng` using `openai/whisper-small` ASR.
+> **Verification Status:** Tested end-to-end (`11 / 11` automated tests passing across `test_pipeline.py` and `test_full_pipeline.py`), combining Stage 1 Text Normalization ([`persian_normalizer.py`](persian_normalizer.py)), Block D Homograph Dataset & Repr. 2 Disambiguator ([`homograph_dataset_pipeline.py`](homograph_dataset_pipeline.py)), Stages 2–4 G2P & Prosody ([`g2p_persian.py`](g2p_persian.py)), Stages 5–8 & T1–T3 VITS + Multi-Period/Multi-Scale Discriminators ([`models.py`](models.py)), and Stage 9 ONNX Inference, Scales, Chunking & Silence Trim ([`tts_pipeline_module.py`](tts_pipeline_module.py)).
 
 ---
 
 ## System Architecture & Neural Upgrades
 
-![Persian Piper / VITS Fine-Tuning Architecture with 3 Custom Upgrades](output/architecture_diagram.jpg)
+![Persian TTS Pipeline (VITS + Piper base)](output/persian_tts_pipeline_diagram.png)
 
 ### 1. Persian G2P, `Homo-GE2PE` & Prosody Stream ([`g2p_persian.py`](g2p_persian.py) & [`symbols.py`](symbols.py))
 

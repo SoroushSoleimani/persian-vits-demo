@@ -67,7 +67,7 @@ class TestBlock1TextNormalization(unittest.TestCase):
     def test_numbers_dates_abbreviations_and_zwnj(self):
         raw = "تاريخ جلسه ۱۴۰۳/۰۸/۲۵ با د. رضايي در مسافت 5 km و ۲۵٪ پیشرفت می‌رود."
         norm = normalize_persian_text(raw)
-        self.assertIn("بیست و پنجم آبان یک هزار و چهارصد و سه", norm)
+        self.assertIn("بیست و پنجم آبان هزار و چهارصد و سه", norm)
         self.assertIn("دکتر رضایی", norm)
         self.assertIn("پنج کیلومتر", norm)
         self.assertIn("بیست و پنج درصد", norm)
@@ -99,7 +99,7 @@ class TestBlockDDatasetAndRepr2(unittest.TestCase):
         tr_sents = {x["grapheme"] for x in tr}
         te_sents = {x["grapheme"] for x in te}
         self.assertEqual(len(tr_sents & te_sents), 0)
-        self.assertEqual(len(extra), 5)
+        self.assertEqual(len(extra), 6)
 
 
 class TestBlock234G2PAndProsody(unittest.TestCase):
@@ -220,7 +220,7 @@ class TestBlock9InferenceAndRealTTS(unittest.TestCase):
 
         pipe = PersianTTSPipeline(g2p=g2p, synth_ids_fn=synth_ids, prefer_homo_ge2pe=prefer_ge2pe)
 
-        # 1. Synthesize all 5 Extra Real TTS sentences (with dates, abbreviations, numbers, homographs, tashdid)
+        # 1. Synthesize all 6 Extra Real TTS sentences (with dates, abbreviations, numbers, homographs, tashdid)
         tts_results: List[Dict[str, Any]] = []
         for item in EXTRA_REAL_TTS_TEST_SET:
             res = pipe.synthesize(item["text"], scales=(0.5, 1.0, 0.35))
@@ -229,12 +229,17 @@ class TestBlock9InferenceAndRealTTS(unittest.TestCase):
             self.assertGreater(metrics["rms_db"], -25.0)
             self.assertGreater(metrics["mean_f0_hz"], 130.0)
             self.assertLess(metrics["silence_ratio"], 0.38)
+            p_syms, _, _, _, raw_g = g2p.text_to_aligned_streams_with_context(
+                res.normalized_full_text, intersperse_blank=False, prefer_homo_ge2pe=prefer_ge2pe
+            )
             wav_path = os.path.join("output", f"full_pipe_{item['id']}.wav")
             _save_wav(wav_path, res.audio)
             tts_results.append({
                 "id": item["id"],
                 "raw_text": item["text"],
                 "normalized_text": res.normalized_full_text,
+                "raw_ge2pe": raw_g,
+                "ipa_preview": "".join(s for s in p_syms if s not in ("^", "$", "_")),
                 "focus": item["focus"],
                 "wav_path": wav_path,
                 "elapsed_ms": res.elapsed_ms,
@@ -252,7 +257,7 @@ class TestBlock9InferenceAndRealTTS(unittest.TestCase):
         self.assertLess(scale_metrics["fast"]["duration_sec"], scale_metrics["slow"]["duration_sec"])
 
         # 3. Verify chunking + mid-utterance interrupt
-        multi = "تاریخ جلسه ۱۴۰۳/۰۸/۲۵ با د. رضایی است، لطفا با دقت گزارش ۲۵٪ را آماده کنید... سپس نتیجه را ارسال کنید."
+        multi = "مدیر جدید در سمت ریاست، گزارش ۲۵٪ بودجه را بررسی کرد... سپس در تاریخ ۱۴۰۳/۰۸/۲۵ نتیجه را اعلام کرد."
         r_full = pipe.synthesize(multi)
         _save_wav(os.path.join("output", "full_pipe_interrupt_full.wav"), r_full.audio)
         ev = threading.Event()

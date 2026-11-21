@@ -98,9 +98,12 @@ def int_to_persian_words(n: int) -> str:
     while n > 0:
         rem = n % 1000
         if rem:
-            words = _three_digits_to_persian(rem)
-            scale = _SCALES[scale_idx] if scale_idx < len(_SCALES) else ""
-            chunks.append(f"{words} {scale}".strip() if scale else words)
+            if scale_idx == 1 and rem == 1:
+                chunks.append("هزار")
+            else:
+                words = _three_digits_to_persian(rem)
+                scale = _SCALES[scale_idx] if scale_idx < len(_SCALES) else ""
+                chunks.append(f"{words} {scale}".strip() if scale else words)
         n //= 1000
         scale_idx += 1
     return " و ".join(reversed(chunks))

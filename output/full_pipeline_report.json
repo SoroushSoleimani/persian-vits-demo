@@ -5,68 +5,93 @@
   "extra_real_tts_results": [
     {
       "id": "tts_1",
-      "raw_text": "تاریخ جلسه ۱۴۰۳/۰۸/۲۵ با د. رضایی در سمت ریاست برگزار می‌شود؟",
-      "normalized_text": "تاریخ جلسه بیست و پنجم آبان یک هزار و چهارصد و سه با دکتر رضایی در سمت ریاست برگزار می‌شود؟",
-      "focus": "Date + Abbreviation (د.) + Homograph (semat) + Question (؟)",
+      "raw_text": "مدیر جدید در سمت ریاست، حتما با دقت به سمت اتاق جلسات رفت.",
+      "normalized_text": "مدیر جدید در سمت ریاست، حتما با دقت به سمت اتاق جلسات رفت.",
+      "raw_ge2pe": "modire1 j/did d/r sem/te1 riyas/t, h/tm/n ba deqq/t be s/mte1 otaqe1 j/l/sat r/ft.",
+      "ipa_preview": "modˈire dʒadˈid dar semˈate rijɑsˈat, hˈatman bɑ dˈeq1q1at be sˈamte otˈɑq1e dʒalasˈɑt rˈaft.",
+      "focus": "Homograph سمت (semat-e vs samt-e) + Tanvin (حتما) + Tashdid (دقت)",
       "wav_path": "output/full_pipe_tts_1.wav",
-      "elapsed_ms": 1502.92,
-      "duration_sec": 8.2026,
-      "rms_db": -18.37,
+      "elapsed_ms": 1632.59,
+      "duration_sec": 5.4557,
+      "rms_db": -17.81,
       "peak": 0.85,
-      "mean_f0_hz": 234.79,
-      "silence_ratio": 0.063
+      "mean_f0_hz": 231.34,
+      "silence_ratio": 0.125
     },
     {
       "id": "tts_2",
-      "raw_text": "مدیر جدید ۲۵٪ بودجه را با دقت فراوان بررسی کرد.",
-      "normalized_text": "مدیر جدید بیست و پنج درصد بودجه را با دقت فراوان بررسی کرد.",
-      "focus": "Percentage (۲۵٪) + Tashdid (deqqat) + ZWNJ/Ezafe",
+      "raw_text": "در کرم مرد بزرگ شکی نیست، ولی کرم کوچک روی برگ درخت بود.",
+      "normalized_text": "در کرم مرد بزرگ شکی نیست، ولی کرم کوچک روی برگ درخت بود.",
+      "raw_ge2pe": "d/r k/r/me1 m/rde1 bozorg $/kki nist, v/li kerme1 kuC/k ruye b/rge1 der/xt bud.",
+      "ipa_preview": "dar karˈame mˈarde bozˈorɡ ʃakkˈi nˈist, vˈali kˈerme kutʃˈak rujˈe bˈarɡe derˈaxt bˈud.",
+      "focus": "Homograph کرم (karam-e vs kerm-e) + مرد (mard-e) + Tashdid (شکی)",
       "wav_path": "output/full_pipe_tts_2.wav",
-      "elapsed_ms": 962.49,
-      "duration_sec": 5.4765,
-      "rms_db": -16.59,
+      "elapsed_ms": 1175.11,
+      "duration_sec": 4.852,
+      "rms_db": -16.1,
       "peak": 0.85,
-      "mean_f0_hz": 230.9,
-      "silence_ratio": 0.081
+      "mean_f0_hz": 235.71,
+      "silence_ratio": 0.107
     },
     {
       "id": "tts_3",
-      "raw_text": "معلم مدرسه بیش از ۱۲۰ صفحه کتاب را می‌خواند.",
-      "normalized_text": "معلم مدرسه بیش از صد و بیست صفحه کتاب را می‌خواند.",
-      "focus": "Number (۱۲۰) + Tashdid+Ezafe (mo'allem-e) + ZWNJ (می‌خواند)",
+      "raw_text": "آیا مهر استاد دانشگاه با مهر و محبت بر برگه امتحان زده شد؟",
+      "normalized_text": "آیا مهر استاد دانشگاه با مهر و محبت بر برگه امتحان زده شد؟",
+      "raw_ge2pe": "aya mohre1 ostade1 dane$gah ba mehr v/ moh/bb/t b/r b/rgeye emtehan z/de $od?",
+      "ipa_preview": "ɑjˈɑ mˈohre ostˈɑde dɑneʃɡˈɑh bɑ mˈehr vˈa mohabbˈat bˈar bˈarɡeje emtehˈɑn zadˈe ʃˈod?",
+      "focus": "Homograph مهر (mohr-e vs mehr) + Tashdid (محبت) + Question (؟)",
       "wav_path": "output/full_pipe_tts_3.wav",
-      "elapsed_ms": 724.6,
-      "duration_sec": 4.0518,
-      "rms_db": -17.95,
+      "elapsed_ms": 1076.79,
+      "duration_sec": 5.3844,
+      "rms_db": -15.92,
       "peak": 0.85,
-      "mean_f0_hz": 226.17,
-      "silence_ratio": 0.069
+      "mean_f0_hz": 237.34,
+      "silence_ratio": 0.097
     },
     {
       "id": "tts_4",
-      "raw_text": "تیغه اره در مسافت ۵ km بسیار تیز می‌ماند.",
-      "normalized_text": "تیغه اره در مسافت پنج کیلومتر بسیار تیز می‌ماند.",
-      "focus": "Homograph (arre) + Number + Abbreviation (km) + ZWNJ",
+      "raw_text": "نجار با تیغه اره چوب درخت را با دقت فراوان برید.",
+      "normalized_text": "نجار با تیغه اره چوب درخت را با دقت فراوان برید.",
+      "raw_ge2pe": "n/jjar ba tiqeye1 /rre Cub der/xt ra ba deqq/te1 f/ravan borid.",
+      "ipa_preview": "nadʒdʒˈɑr bɑ tiq1ˈeje arrˈe tʃˈub derˈaxt rɑ bɑ deq1q1ˈate farɑvˈɑn borˈid.",
+      "focus": "Homograph اره (arre = saw) + Tashdid (نجار، اره، دقت) + Ezafe",
       "wav_path": "output/full_pipe_tts_4.wav",
-      "elapsed_ms": 728.58,
-      "duration_sec": 4.6104,
-      "rms_db": -15.68,
+      "elapsed_ms": 850.79,
+      "duration_sec": 4.4427,
+      "rms_db": -16.22,
       "peak": 0.85,
-      "mean_f0_hz": 235.91,
-      "silence_ratio": 0.035
+      "mean_f0_hz": 225.38,
+      "silence_ratio": 0.108
     },
     {
       "id": "tts_5",
-      "raw_text": "باد از سمت دریا با سرعت ۳.۵ برابر به سوی ساحل می‌وزید.",
-      "normalized_text": "باد از سمت دریا با سرعت سه ممیز پنج برابر به سوی ساحل می‌وزید.",
-      "focus": "Homograph (samt) + Decimal (۳.۵) + ZWNJ (می‌وزید)",
+      "raw_text": "جلسه دفاع در تاریخ ۱۴۰۳/۰۷/۱۵ با حضور د. علوی برگزار می‌شود.",
+      "normalized_text": "جلسه دفاع در تاریخ پانزدهم مهر هزار و چهارصد و سه با حضور دکتر علوی برگزار می‌شود.",
+      "raw_ge2pe": "j/l/seye defa d/r tarixe1 panzd/home1 mehre1 hezar o C/hars/d o se ba hozure1 doktor al/vi b/rgozar mi$/v/d.",
+      "ipa_preview": "dʒalasejˈe defˈɑ dar tɑrˈixe pɑnzdahˈome mˈehre hezˈɑr o tʃahɑrsˈad o sˈe bɑ hozˈure doktˈor ɑlavˈi barɡozˈɑr mˈiʃavad.",
+      "focus": "Normalization: Jalali Date (۱۴۰۳/۰۷/۱۵) + Abbreviation (د.) + ZWNJ",
       "wav_path": "output/full_pipe_tts_5.wav",
-      "elapsed_ms": 917.47,
-      "duration_sec": 5.421,
-      "rms_db": -19.94,
+      "elapsed_ms": 1550.37,
+      "duration_sec": 7.5707,
+      "rms_db": -16.86,
       "peak": 0.85,
-      "mean_f0_hz": 226.13,
-      "silence_ratio": 0.067
+      "mean_f0_hz": 221.35,
+      "silence_ratio": 0.069
+    },
+    {
+      "id": "tts_6",
+      "raw_text": "معلم مدرسه گفت ۲۵٪ از ۱۲۰ دانش‌آموز در آزمون قبول شدند.",
+      "normalized_text": "معلم مدرسه گفت بیست و پنج درصد از صد و بیست دانش‌آموز در آزمون قبول شدند.",
+      "raw_ge2pe": "mo@/lleme1 m/drese goft bistop/nj d/rs/d /z s/d o bist dane$amuz d/r azmun q/bul $od/nd.",
+      "ipa_preview": "moʔallˈeme madresˈe ɡˈoft bistopˈandʒ darsˈad az sˈad o bˈist dɑneʃɑmˈuz dar ɑzmˈun q1abˈul ʃodˈand.",
+      "focus": "Normalization: Percentage (۲۵٪) + Number (۱۲۰) + Tashdid (معلم) + ZWNJ",
+      "wav_path": "output/full_pipe_tts_6.wav",
+      "elapsed_ms": 1289.34,
+      "duration_sec": 6.013,
+      "rms_db": -17.42,
+      "peak": 0.85,
+      "mean_f0_hz": 230.91,
+      "silence_ratio": 0.08
     }
   ],
   "scale_sweep": {
@@ -76,11 +101,11 @@
         0.85,
         0.35
       ],
-      "duration_sec": 3.3905,
-      "rms_db": -17.34,
+      "duration_sec": 3.4555,
+      "rms_db": -16.14,
       "peak": 0.85,
-      "mean_f0_hz": 234.65,
-      "silence_ratio": 0.012
+      "mean_f0_hz": 227.99,
+      "silence_ratio": 0.023
     },
     "normal": {
       "scales": [
@@ -88,11 +113,11 @@
         1.0,
         0.35
       ],
-      "duration_sec": 3.9941,
-      "rms_db": -17.24,
+      "duration_sec": 3.9592,
+      "rms_db": -18.14,
       "peak": 0.85,
-      "mean_f0_hz": 236.76,
-      "silence_ratio": 0.061
+      "mean_f0_hz": 230.1,
+      "silence_ratio": 0.041
     },
     "slow": {
       "scales": [
@@ -100,20 +125,20 @@
         1.25,
         0.35
       ],
-      "duration_sec": 4.8619,
-      "rms_db": -18.27,
+      "duration_sec": 4.7166,
+      "rms_db": -15.48,
       "peak": 0.85,
-      "mean_f0_hz": 223.42,
-      "silence_ratio": 0.116
+      "mean_f0_hz": 223.9,
+      "silence_ratio": 0.026
     }
   },
   "multi_chunk_full": {
     "chunks": 3,
-    "normalized": "تاریخ جلسه بیست و پنجم آبان یک هزار و چهارصد و سه با دکتر رضایی است، لطفا با دقت گزارش بیست و پنج درصد را آماده کنید... سپس نتیجه را ارسال کنید.",
-    "duration_sec": 12.4809,
-    "rms_db": -16.87,
+    "normalized": "مدیر جدید در سمت ریاست، گزارش بیست و پنج درصد بودجه را بررسی کرد... سپس در تاریخ بیست و پنجم آبان هزار و چهارصد و سه نتیجه را اعلام کرد.",
+    "duration_sec": 12.2359,
+    "rms_db": -16.31,
     "peak": 0.85,
-    "mean_f0_hz": 228.11,
-    "silence_ratio": 0.128
+    "mean_f0_hz": 224.19,
+    "silence_ratio": 0.115
   }
 }

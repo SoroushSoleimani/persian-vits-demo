@@ -12,28 +12,33 @@ DEFAULT_CSV_PATH = os.path.join("Dataset for G2P", "homograph_dataset_clean_v2.c
 EXTRA_REAL_TTS_TEST_SET: List[Dict[str, str]] = [
     {
         "id": "tts_1",
-        "text": "تاریخ جلسه ۱۴۰۳/۰۸/۲۵ با د. رضایی در سمت ریاست برگزار می‌شود؟",
-        "focus": "Date + Abbreviation (د.) + Homograph (semat) + Question (؟)",
+        "text": "مدیر جدید در سمت ریاست، حتما با دقت به سمت اتاق جلسات رفت.",
+        "focus": "Homograph سمت (semat-e vs samt-e) + Tanvin (حتما) + Tashdid (دقت)",
     },
     {
         "id": "tts_2",
-        "text": "مدیر جدید ۲۵٪ بودجه را با دقت فراوان بررسی کرد.",
-        "focus": "Percentage (۲۵٪) + Tashdid (deqqat) + ZWNJ/Ezafe",
+        "text": "در کرم مرد بزرگ شکی نیست، ولی کرم کوچک روی برگ درخت بود.",
+        "focus": "Homograph کرم (karam-e vs kerm-e) + مرد (mard-e) + Tashdid (شکی)",
     },
     {
         "id": "tts_3",
-        "text": "معلم مدرسه بیش از ۱۲۰ صفحه کتاب را می‌خواند.",
-        "focus": "Number (۱۲۰) + Tashdid+Ezafe (mo'allem-e) + ZWNJ (می‌خواند)",
+        "text": "آیا مهر استاد دانشگاه با مهر و محبت بر برگه امتحان زده شد؟",
+        "focus": "Homograph مهر (mohr-e vs mehr) + Tashdid (محبت) + Question (؟)",
     },
     {
         "id": "tts_4",
-        "text": "تیغه اره در مسافت ۵ km بسیار تیز می‌ماند.",
-        "focus": "Homograph (arre) + Number + Abbreviation (km) + ZWNJ",
+        "text": "نجار با تیغه اره چوب درخت را با دقت فراوان برید.",
+        "focus": "Homograph اره (arre = saw) + Tashdid (نجار، اره، دقت) + Ezafe",
     },
     {
         "id": "tts_5",
-        "text": "باد از سمت دریا با سرعت ۳.۵ برابر به سوی ساحل می‌وزید.",
-        "focus": "Homograph (samt) + Decimal (۳.۵) + ZWNJ (می‌وزید)",
+        "text": "جلسه دفاع در تاریخ ۱۴۰۳/۰۷/۱۵ با حضور د. علوی برگزار می‌شود.",
+        "focus": "Normalization: Jalali Date (۱۴۰۳/۰۷/۱۵) + Abbreviation (د.) + ZWNJ",
+    },
+    {
+        "id": "tts_6",
+        "text": "معلم مدرسه گفت ۲۵٪ از ۱۲۰ دانش‌آموز در آزمون قبول شدند.",
+        "focus": "Normalization: Percentage (۲۵٪) + Number (۱۲۰) + Tashdid (معلم) + ZWNJ",
     },
 ]
 

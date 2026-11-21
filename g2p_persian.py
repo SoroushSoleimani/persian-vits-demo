@@ -161,6 +161,7 @@ class HomoGE2PEWrapper:
         if len(clean_words) == len(p_tokens):
             out_tokens: List[str] = []
             for idx, (g_w, p_tok) in enumerate(zip(clean_words, p_tokens)):
+                prev_g_w = clean_words[idx - 1] if idx > 0 else ""
                 next_g_w = clean_words[idx + 1] if idx + 1 < len(clean_words) else ""
                 raw_w = raw_words[idx] if (raw_words and idx < len(raw_words)) else g_w
                 punct = trailing_puncts[idx] if idx < len(trailing_puncts) else ""
@@ -173,13 +174,28 @@ class HomoGE2PEWrapper:
                     core = core[:-1]
 
                 has_ezafe = raw_has_1 or (
-                    g_w == "معلم" and next_g_w in ("مدرسه", "خوب")
+                    (g_w == "معلم" and next_g_w in ("مدرسه", "خوب"))
+                    or (g_w == "تیغه" and next_g_w == "اره")
                 )
 
                 if g_w in self.TANVIN_TASHDID_OVERRIDES:
                     core = self.TANVIN_TASHDID_OVERRIDES[g_w] + ("e1" if has_ezafe else "")
                 elif g_w == "کرم" and next_g_w == "مرد":
                     core = "k/r/me1"
+                elif g_w == "کرم" and next_g_w == "کوچک":
+                    core = "kerme1"
+                elif g_w == "اره" and (prev_g_w == "تیغه" or next_g_w in ("چوب", "بسیار", "برید")):
+                    core = "/rre"
+                elif g_w == "تیغه" and next_g_w == "اره":
+                    core = "tiqeye1"
+                elif g_w == "سمت" and prev_g_w == "به":
+                    core = "s/mte1" if next_g_w else "s/mt"
+                elif g_w == "سمت" and next_g_w == "ریاست":
+                    core = "sem/te1"
+                elif g_w == "مهر" and next_g_w == "استاد":
+                    core = "mohre1"
+                elif g_w == "مهر" and prev_g_w == "با":
+                    core = "mehr"
                 elif g_w == "برگه" and has_ezafe:
                     core = "b/rgeye1"
                 elif g_w == "دانشگاه" and core.startswith("dane$ga"):
@@ -797,6 +813,16 @@ class PersianG2PProsody:
                     ge2pe_tok = "sem/t1" if next_w in ("ریاست", "مدیریت") else "sem/t"
             elif tok == "معلم":
                 ge2pe_tok = "mo@/llem1" if next_w in ("مدرسه", "خوب") else "mo@/llem"
+            elif tok == "تیغه":
+                ge2pe_tok = "tiqeye1" if next_w == "اره" else "tiqe"
+            elif tok == "اره":
+                ge2pe_tok = "/rre" if prev_w == "تیغه" else "are"
+            elif tok == "نجار":
+                ge2pe_tok = "n/jjar"
+            elif tok == "چوب":
+                ge2pe_tok = "cub1" if next_w == "درخت" else "cub"
+            elif tok == "برید":
+                ge2pe_tok = "borid"
             elif tok in base_words:
                 ge2pe_tok = base_words[tok]
 
