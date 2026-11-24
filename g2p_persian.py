@@ -12,6 +12,7 @@ import os
 import re
 import sys
 from typing import Dict, List, Optional, Tuple
+from persian_text_normalizer import normalize_persian_text
 from symbols import BOS, EOS, PAD, PROSODY_TAGS, build_default_symbol_map
 
 
@@ -116,11 +117,12 @@ class HomoGE2PEWrapper:
 
     @staticmethod
     def _normalize_persian(text: str) -> str:
-        t = (
-            text.replace("ك", "ک")
-            .replace("ي", "ی")
-            .replace("ى", "ی")
-            .replace("\u200c", " ")
+        t = normalize_persian_text(
+            text,
+            use_external=True,
+            preserve_zwnj=False,
+            expand_numbers_and_dates=True,
+            normalize_question_mark=False,
         )
         t = re.sub(r"[ًٌٍَُِّْ]", "", t)
         t = re.sub(r"\s+", " ", t).strip()
@@ -408,21 +410,14 @@ class PersianG2PProsody:
 
     @staticmethod
     def normalize_persian(text: str) -> str:
-        """Normalizes Arabic characters and spacing into standard Persian."""
-        replacements = {
-            "ي": "ی",
-            "ى": "ی",
-            "ك": "ک",
-            "ؤ": "و",
-            "إ": "ا",
-            "أ": "ا",
-            "ة": "ه",
-            "?": "؟",
-        }
-        for src, dst in replacements.items():
-            text = text.replace(src, dst)
-        text = re.sub(r"[ \t]+", " ", text).strip()
-        return text
+        """Normalizes Arabic characters, ZWNJ, numbers, dates, and abbreviations into standard Persian."""
+        return normalize_persian_text(
+            text,
+            use_external=True,
+            preserve_zwnj=True,
+            expand_numbers_and_dates=True,
+            normalize_question_mark=True,
+        )
 
     def word_to_phonemes_and_tags(
         self, word: str, has_ezafe: bool = False
@@ -828,6 +823,7 @@ class PersianG2PProsody:
         falling back gracefully to context-aware homograph/tanvin/ezafe rules if offline.
         Returns: (phonemes_out, phoneme_ids, prosody_ids, context_emb, raw_ge2pe_str)
         """
+        text = self.normalize_persian(text)
         context_emb = None
         raw_ge2pe_str = ""
         ge2pe_obj = getattr(self, "homo_ge2pe", None)

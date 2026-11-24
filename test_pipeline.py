@@ -77,6 +77,12 @@ class TestPersianG2PAlignment(unittest.TestCase):
                 if sym not in ("^", "$", "_"):
                     self.assertIn(sym, self.g2p.phoneme_id_map, f"Unmapped {sym!r} in {text}")
 
+    def test_normalization_before_g2p(self):
+        norm = self.g2p.normalize_persian("امروز 2 کتاب ه.ش دارم؟")
+        self.assertIn("دو", norm)
+        self.assertIn("هجری شمسی", norm)
+        self.assertTrue(norm.endswith("؟"))
+
 
 @unittest.skipUnless(HAS_TORCH, "PyTorch required for neural architecture tests")
 class TestUpgradedPersianVits(unittest.TestCase):

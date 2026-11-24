@@ -20,6 +20,8 @@ import random
 import re
 from typing import Any, Dict, List, Tuple
 
+from persian_text_normalizer import normalize_persian_text
+
 DEFAULT_CSV_PATH = os.path.join("Dataset for G2P", "homograph_dataset_clean_v2.csv")
 
 _PUNCT_RE = r"[،؛؟.,!\"«»:\s]+"
@@ -59,11 +61,12 @@ _MEDIAL_FIXES: Dict[str, str] = {
 
 def normalize_persian_input(text: str) -> str:
     """Normalize Persian grapheme input for ByT5 G2P."""
-    t = (
-        text.replace("ك", "ک")
-        .replace("ي", "ی")
-        .replace("ى", "ی")
-        .replace("\u200c", " ")
+    t = normalize_persian_text(
+        text,
+        use_external=False,
+        preserve_zwnj=False,
+        expand_numbers_and_dates=True,
+        normalize_question_mark=False,
     )
     t = re.sub(r"[ًٌٍَُِّْ]", "", t)
     t = re.sub(_PUNCT_RE, " ", t).strip()
@@ -201,13 +204,41 @@ def canonicalize_repr2_for_eval(phon: str) -> str:
     return " ".join(tok[:-1] if tok.endswith("1") else tok for tok in toks if tok)
 
 
+def _homograph_lemma_key(word: str) -> str:
+    """Normalize a homograph word to its lemma/base key for leak-free word/lemma splitting."""
+    w = normalize_persian_text(
+        word,
+        use_external=False,
+        preserve_zwnj=False,
+        expand_numbers_and_dates=False,
+        normalize_question_mark=False,
+    )
+    w = re.sub(r"[ًٌٍَُِّْ]", "", w).strip()
+    try:
+        from hazm import Lemmatizer  # type: ignore
+
+        lemma = Lemmatizer().lemmatize(w)
+        if lemma:
+            w = lemma.split("#")[0]
+    except Exception:
+        pass
+    return w
+
+
 def build_80_20_dataset(
     csv_path: str = DEFAULT_CSV_PATH,
     train_ratio: float = 0.80,
     seed: int = 42,
     audit_out_path: str | None = None,
+    split_mode: str = "word_lemma",
 ) -> Tuple[List[Dict[str, str]], List[Dict[str, str]], List[Dict[str, str]], Dict[str, Any]]:
-    """Build 80% Train / 20% Held-Out Unseen Test split from human-labeled rows only."""
+    """Build 80% Train / 20% Held-Out Unseen Test split from human-labeled rows only.
+
+    split_mode:
+      - 'word_lemma' (default, matches pipeline diagram): splits by homograph word/lemma
+        so held-out test homograph words/lemmas are completely unseen during training.
+      - 'stratified': splits 80/20 within each (homograph_grapheme, homograph_phoneme) sense.
+    """
     rng = random.Random(seed)
     audit: Dict[str, int] = collections.Counter()
 
@@ -259,18 +290,37 @@ def build_80_20_dataset(
 
     train_items: List[Dict[str, str]] = []
     test_items: List[Dict[str, str]] = []
-    for hw in sorted(by_hw.keys()):
-        for sense in sorted(by_hw[hw].keys()):
-            bucket = list(by_hw[hw][sense])
-            rng.shuffle(bucket)
-            if len(bucket) == 1:
+    if split_mode == "word_lemma":
+        by_lemma: Dict[str, List[Dict[str, str]]] = collections.defaultdict(list)
+        for hw in sorted(by_hw.keys()):
+            lemma = _homograph_lemma_key(hw)
+            for sense in sorted(by_hw[hw].keys()):
+                by_lemma[lemma].extend(by_hw[hw][sense])
+
+        lemma_keys = sorted(by_lemma.keys())
+        rng.shuffle(lemma_keys)
+        total_items = sum(len(v) for v in by_lemma.values())
+        target_train = int(round(total_items * train_ratio))
+
+        for lemma in lemma_keys:
+            bucket = by_lemma[lemma]
+            if len(train_items) < target_train or not train_items:
                 train_items.extend(bucket)
             else:
-                n_train = max(1, int(round(len(bucket) * train_ratio)))
-                if n_train == len(bucket):
-                    n_train -= 1
-                train_items.extend(bucket[:n_train])
-                test_items.extend(bucket[n_train:])
+                test_items.extend(bucket)
+    else:
+        for hw in sorted(by_hw.keys()):
+            for sense in sorted(by_hw[hw].keys()):
+                bucket = list(by_hw[hw][sense])
+                rng.shuffle(bucket)
+                if len(bucket) == 1:
+                    train_items.extend(bucket)
+                else:
+                    n_train = max(1, int(round(len(bucket) * train_ratio)))
+                    if n_train == len(bucket):
+                        n_train -= 1
+                    train_items.extend(bucket[:n_train])
+                    test_items.extend(bucket[n_train:])
 
     rng.shuffle(train_items)
     rng.shuffle(test_items)
@@ -282,6 +332,8 @@ def build_80_20_dataset(
         if len(senses) >= 2:
             s_tr = next((x for x in train_items if x["homograph_grapheme"] == hw and x["homograph_phoneme"] == senses[0]), None)
             s_te = next((x for x in test_items if x["homograph_grapheme"] == hw and x["homograph_phoneme"] == senses[1]), None)
+            if not s_te:
+                s_te = next((x for x in test_items if x["homograph_grapheme"] == hw), None)
             if s_tr:
                 showcase_items.append({**s_tr, "split_tag": "TRAIN (Seen)"})
             if s_te:
@@ -289,6 +341,7 @@ def build_80_20_dataset(
 
     summary = {
         "csv_path": csv_path,
+        "split_mode": split_mode,
         "train_count": len(train_items),
         "test_unseen_count": len(test_items),
         "showcase_count": len(showcase_items),

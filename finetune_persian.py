@@ -180,6 +180,22 @@ def _resample_to_target(wav: np.ndarray, orig_sr: int, target_sr: int = TARGET_S
     return resample_poly(wav, up=up, down=down).astype(np.float32)
 
 
+def _prepare_clip_waveform(
+    wav: np.ndarray, orig_sr: int, min_samples_len: int
+) -> Optional[np.ndarray]:
+    wav = _resample_to_target(wav, orig_sr, TARGET_SR)
+    if len(wav) < min_samples_len:
+        return None
+    peak = float(np.max(np.abs(wav)))
+    if peak < 1e-4:
+        return None
+    if peak > 0.98:
+        wav = wav * (0.95 / peak)
+    # Trim tail so sample length aligns cleanly with hop_length=256
+    usable = (len(wav) // HOP_LENGTH) * HOP_LENGTH
+    return np.ascontiguousarray(wav[:usable], dtype=np.float32)
+
+
 def load_mana_tts_clips(
     max_samples: int = 800,
     max_shards: int = 3,
@@ -213,21 +229,11 @@ def load_mana_tts_clips(
             if not (min_dur <= dur <= max_dur and cer <= max_cer and len(transcript) >= 5):
                 continue
 
-            wav = _decode_audio_field(row["audio"])
+            raw_wav = _decode_audio_field(row["audio"])
             orig_sr = int(float(row.get("samplerate", 44100)))
-            wav = _resample_to_target(wav, orig_sr, TARGET_SR)
-            if len(wav) < min_samples_len:
+            wav = _prepare_clip_waveform(raw_wav, orig_sr, min_samples_len)
+            if wav is None:
                 continue
-
-            peak = float(np.max(np.abs(wav)))
-            if peak < 1e-4:
-                continue
-            if peak > 0.98:
-                wav = wav * (0.95 / peak)
-
-            # Trim tail so sample length aligns cleanly with hop_length=256
-            usable = (len(wav) // HOP_LENGTH) * HOP_LENGTH
-            wav = np.ascontiguousarray(wav[:usable], dtype=np.float32)
 
             clips.append({"transcript": transcript, "duration": dur, "cer": cer, "wav": wav})
             if len(clips) >= max_samples:
@@ -237,6 +243,50 @@ def load_mana_tts_clips(
         f"[Data] Loaded {len(clips)} studio Mana-TTS clips "
         f"(CER <= {max_cer}, {min_dur}s <= dur <= {max_dur}s, sr={TARGET_SR}Hz)"
     )
+    return clips
+
+
+def load_common_voice_fa_clips(
+    max_samples: int = 200,
+    split: str = "train",
+    dataset_name: str = "mozilla-foundation/common_voice_17_0",
+    min_dur: float = 1.0,
+    max_dur: float = 8.5,
+) -> List[Dict[str, Any]]:
+    """Load validated Common Voice Persian (`fa`) clips via HuggingFace datasets (streaming)."""
+    if max_samples <= 0:
+        return []
+    try:
+        from datasets import load_dataset
+    except ImportError:
+        print("[Data] `datasets` package not available; skipping Common Voice fa.")
+        return []
+
+    clips: List[Dict[str, Any]] = []
+    min_samples_len = HOP_LENGTH * 40
+    try:
+        ds = load_dataset(dataset_name, "fa", split=split, streaming=True)
+        for row in ds:
+            if len(clips) >= max_samples:
+                break
+            transcript = str(row.get("sentence", "")).strip()
+            if len(transcript) < 5:
+                continue
+            audio_info = row.get("audio") or {}
+            raw_wav = _decode_audio_field(audio_info)
+            orig_sr = int(audio_info.get("sampling_rate", 48000))
+            dur = len(raw_wav) / max(1, orig_sr)
+            if not (min_dur <= dur <= max_dur):
+                continue
+            wav = _prepare_clip_waveform(raw_wav, orig_sr, min_samples_len)
+            if wav is None:
+                continue
+            clips.append({"transcript": transcript, "duration": dur, "cer": 0.0, "wav": wav})
+    except Exception as exc:
+        print(f"[Data] Could not stream Common Voice fa ({exc}); continuing with Mana-TTS only.")
+        return []
+
+    print(f"[Data] Loaded {len(clips)} Common Voice fa clips (sr={TARGET_SR}Hz)")
     return clips
 
 
@@ -452,6 +502,62 @@ def plot_training_curves(history: List[Dict[str, float]], out_png: str) -> None:
     plt.close(fig)
 
 
+def chunk_persian_text(text: str, max_chars: int = 180) -> List[str]:
+    """Split long Persian text on sentence/clause boundaries for stable ONNX inference."""
+    import re
+
+    cleaned = re.sub(r"\s+", " ", (text or "")).strip()
+    if not cleaned:
+        return []
+    if len(cleaned) <= max_chars:
+        return [cleaned]
+
+    parts = [p.strip() for p in re.split(r"(?<=[.!؟؛\n])\s+", cleaned) if p.strip()]
+    chunks: List[str] = []
+    cur = ""
+    for part in parts:
+        if len(part) > max_chars:
+            if cur:
+                chunks.append(cur)
+                cur = ""
+            sub_parts = [s.strip() for s in re.split(r"(?<=[،,])\s+", part) if s.strip()]
+            for sub in sub_parts:
+                if len(cur) + len(sub) + 1 <= max_chars:
+                    cur = f"{cur} {sub}".strip()
+                else:
+                    if cur:
+                        chunks.append(cur)
+                    cur = sub
+        elif len(cur) + len(part) + 1 <= max_chars:
+            cur = f"{cur} {part}".strip()
+        else:
+            if cur:
+                chunks.append(cur)
+            cur = part
+    if cur:
+        chunks.append(cur)
+    return chunks
+
+
+def trim_silence(
+    wav: np.ndarray,
+    sr: int = TARGET_SR,
+    threshold: float = 0.008,
+    pad_sec: float = 0.06,
+) -> np.ndarray:
+    """Trim leading and trailing silence from synthesized audio."""
+    arr = np.asarray(wav, dtype=np.float32).flatten()
+    if len(arr) == 0:
+        return arr
+    active = np.where(np.abs(arr) > threshold)[0]
+    if len(active) == 0:
+        return arr
+    pad_n = int(pad_sec * sr)
+    start = max(0, int(active[0]) - pad_n)
+    end = min(len(arr), int(active[-1]) + pad_n)
+    return arr[start:end]
+
+
 def synthesize_with_upgraded_onnx(
     ort_sess: ort.InferenceSession,
     phoneme_ids: List[int],
@@ -461,6 +567,7 @@ def synthesize_with_upgraded_onnx(
     length_scale: float = 1.0,
     noise_scale: float = 0.667,
     noise_w: float = 0.8,
+    apply_silence_trim: bool = True,
 ) -> np.ndarray:
     """Run ONNX Runtime inference on exported `persian_vits_upgraded.onnx`."""
     inp = np.expand_dims(np.asarray(phoneme_ids, dtype=np.int64), 0)
@@ -479,7 +586,48 @@ def synthesize_with_upgraded_onnx(
             "scales": scales,
         },
     )[0]
-    return np.squeeze(audio).astype(np.float32)
+    wav = np.squeeze(audio).astype(np.float32)
+    return trim_silence(wav) if apply_silence_trim else wav
+
+
+def synthesize_text_chunked_onnx(
+    ort_sess: ort.InferenceSession,
+    g2p: PersianG2PProsody,
+    text: str,
+    context_dim: int = 1472,
+    length_scale: float = 1.0,
+    noise_scale: float = 0.667,
+    noise_w: float = 0.8,
+    max_chars: int = 180,
+    pause_sec: float = 0.18,
+    apply_silence_trim: bool = True,
+) -> np.ndarray:
+    """Full Piper-style ONNX inference: chunking -> G2P+prosody -> ONNX -> silence trim."""
+    chunks = chunk_persian_text(text, max_chars=max_chars)
+    if not chunks:
+        return np.zeros((0,), dtype=np.float32)
+
+    pause = np.zeros(int(pause_sec * TARGET_SR), dtype=np.float32)
+    segments: List[np.ndarray] = []
+    for idx, chunk in enumerate(chunks):
+        _, phoneme_ids, prosody_ids, ctx_emb, _ = g2p.text_to_aligned_streams_with_context(
+            chunk, intersperse_blank=True, prefer_homo_ge2pe=True
+        )
+        wav = synthesize_with_upgraded_onnx(
+            ort_sess,
+            phoneme_ids,
+            prosody_ids,
+            ctx_emb,
+            context_dim=context_dim,
+            length_scale=length_scale,
+            noise_scale=noise_scale,
+            noise_w=noise_w,
+            apply_silence_trim=apply_silence_trim,
+        )
+        segments.append(wav)
+        if idx < len(chunks) - 1 and len(pause) > 0:
+            segments.append(pause)
+    return np.concatenate(segments) if len(segments) > 1 else segments[0]
 
 
 def run_finetuning(
@@ -487,6 +635,7 @@ def run_finetuning(
     epochs: Optional[int] = None,
     batch_size: int = 8,
     output_dir: str = "output",
+    common_voice_samples: int = 0,
 ) -> Dict[str, Any]:
     os.makedirs(output_dir, exist_ok=True)
     ensure_monotonic_align_built()
@@ -507,6 +656,8 @@ def run_finetuning(
     print(f"[G2P] Homo-GE2PE loaded={ge2pe_loaded} | d_model={context_dim}")
 
     clips = load_mana_tts_clips(max_samples=max_samples)
+    if common_voice_samples > 0:
+        clips.extend(load_common_voice_fa_clips(max_samples=common_voice_samples))
     items = _precompute_ge2pe_features(clips, g2p, context_dim=context_dim, batch_size=16)
 
     # Free ByT5 VRAM before loading SynthesizerTrn + MPD onto GPU

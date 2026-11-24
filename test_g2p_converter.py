@@ -1,6 +1,8 @@
 """Unit & Integration Tests for Micro-Level G2P Dataset Converter (Repr. 1 -> Repr. 2)."""
 
+import csv
 import os
+import tempfile
 import unittest
 
 from g2p_dataset_converter import (
@@ -10,6 +12,7 @@ from g2p_dataset_converter import (
     convert_sentence_repr1_to_repr2,
     convert_word_repr1_to_repr2,
 )
+from persian_text_normalizer import normalize_persian_text
 
 
 class TestG2PDatasetConverter(unittest.TestCase):
@@ -38,6 +41,41 @@ class TestG2PDatasetConverter(unittest.TestCase):
         self.assertTrue(ok2)
         self.assertEqual(s2, "@/bre1 siyah o s/ngin baran ra $oru@ mikon/d")
         self.assertEqual(canonicalize_repr2_for_eval(s1), "tiqeye @/rre besiyar tiz @/st")
+
+    def test_persian_text_normalizer_numbers_dates_abbrev_zwnj(self):
+        out = normalize_persian_text(
+            "د. احمدي در 1403/08/15 با 25% تخفیف می‌رود.",
+            use_external=False,
+        )
+        self.assertIn("دکتر احمدی", out)
+        self.assertIn("پانزدهم آبان هزار و چهارصد و سه", out)
+        self.assertIn("بیست و پنج درصد", out)
+        self.assertIn("می\u200cرود", out)
+
+    def test_word_lemma_split_disjoint(self):
+        rows = [
+            ("کرم مرد بزرگ", "karame marde bozorg", "کرم", "karam"),
+            ("کرم کوچک سبز", "kerme kucak sabz", "کرم", "kerm"),
+            ("مهر استاد دانشگاه", "mohre ostad danesgah", "مهر", "mohr"),
+            ("مهر و محبت", "mehr o mohabbat", "مهر", "mehr"),
+            ("سمت راست خیابان", "samte rast xiyaban", "سمت", "samt"),
+            ("سمت مدیریت", "semate modiriyat", "سمت", "semat"),
+        ]
+        with tempfile.NamedTemporaryFile("w", suffix=".csv", encoding="utf-8", newline="", delete=False) as tf:
+            writer = csv.writer(tf)
+            writer.writerow(["grapheme", "phoneme", "homograph_grapheme", "homograph_phoneme"])
+            writer.writerows(rows)
+            tmp_path = tf.name
+        try:
+            tr, te, _, summary = build_80_20_dataset(tmp_path, train_ratio=0.67, seed=42, split_mode="word_lemma")
+            self.assertEqual(summary["split_mode"], "word_lemma")
+            tr_hw = {x["homograph_grapheme"] for x in tr}
+            te_hw = {x["homograph_grapheme"] for x in te}
+            self.assertGreater(len(tr_hw), 0)
+            self.assertGreater(len(te_hw), 0)
+            self.assertEqual(len(tr_hw & te_hw), 0)
+        finally:
+            os.remove(tmp_path)
 
     @unittest.skipUnless(os.path.isfile(DEFAULT_CSV_PATH), "Local G2P CSV not present")
     def test_80_20_split_and_audit(self):
