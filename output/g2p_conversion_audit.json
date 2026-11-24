@@ -1,0 +1,20 @@
+{
+  "csv_path": "Dataset for G2P\\homograph_dataset_clean_v2.csv",
+  "train_count": 4130,
+  "test_unseen_count": 1056,
+  "showcase_count": 8,
+  "audit_counts": {
+    "total_csv_rows": 10733,
+    "ezafe_ye1_added": 3250,
+    "ezafe_e1_added": 6040,
+    "clean_converted_sentences": 5186,
+    "initial_at_injected": 1569,
+    "skipped_unaligned_after_recovery": 756,
+    "enclitic_o_split": 188,
+    "medial_hiatus_or_typo_fixed": 118,
+    "skipped_unlabeled_or_incomplete": 4683,
+    "trailing_question_stripped": 38,
+    "skipped_noise_placeholder": 1,
+    "skipped_duplicate_sentence": 107
+  }
+}

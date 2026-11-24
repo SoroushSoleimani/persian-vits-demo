@@ -1,0 +1,211 @@
+{
+  "train_count": 4130,
+  "test_unseen_count": 1056,
+  "epochs": 8,
+  "audit_summary": {
+    "csv_path": "E:\\my project\\Phonology Dataset & TTS\\piper model\\Dataset for G2P\\homograph_dataset_clean_v2.csv",
+    "train_count": 4130,
+    "test_unseen_count": 1056,
+    "showcase_count": 8,
+    "audit_counts": {
+      "total_csv_rows": 10733,
+      "ezafe_ye1_added": 3250,
+      "ezafe_e1_added": 6040,
+      "clean_converted_sentences": 5186,
+      "initial_at_injected": 1569,
+      "skipped_unaligned_after_recovery": 756,
+      "enclitic_o_split": 188,
+      "medial_hiatus_or_typo_fixed": 118,
+      "skipped_unlabeled_or_incomplete": 4683,
+      "trailing_question_stripped": 38,
+      "skipped_noise_placeholder": 1,
+      "skipped_duplicate_sentence": 107
+    }
+  },
+  "before_test_unseen": {
+    "count": 1056,
+    "per": 0.0417,
+    "word_exact_acc": 0.7863,
+    "homograph_acc": 0.4034,
+    "homograph_hits": 426
+  },
+  "after_test_unseen": {
+    "count": 1056,
+    "per": 0.0305,
+    "word_exact_acc": 0.836,
+    "homograph_acc": 0.465,
+    "homograph_hits": 491
+  },
+  "before_showcase_summary": {
+    "count": 8,
+    "per": 0.0149,
+    "word_exact_acc": 0.9194,
+    "homograph_acc": 0.125,
+    "homograph_hits": 1
+  },
+  "after_showcase_summary": {
+    "count": 8,
+    "per": 0.0174,
+    "word_exact_acc": 0.9032,
+    "homograph_acc": 0.125,
+    "homograph_hits": 1
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.2021,
+      "val_loss": 0.1113,
+      "test_per": 0.0379,
+      "test_homograph_acc": 0.4157
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.1055,
+      "val_loss": 0.0943,
+      "test_per": 0.0341,
+      "test_homograph_acc": 0.4337
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.0889,
+      "val_loss": 0.0843
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.0789,
+      "val_loss": 0.0818,
+      "test_per": 0.0312,
+      "test_homograph_acc": 0.4593
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.0752,
+      "val_loss": 0.0806
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.0722,
+      "val_loss": 0.0805,
+      "test_per": 0.0305,
+      "test_homograph_acc": 0.4631
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.0709,
+      "val_loss": 0.0804
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.0703,
+      "val_loss": 0.0804,
+      "test_per": 0.0304,
+      "test_homograph_acc": 0.464
+    }
+  ],
+  "showcase_details": [
+    {
+      "id": 1,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "ابرقدرت‌ها به کشورها رحمی ندارند",
+      "raw_phoneme_repr1": "?abarqodrathA be keSvarhA rahmi nadArand",
+      "target_ge2pe": "@/b/rqodr/tha be ke$v/rha r/hmi n/dar/nd",
+      "before_pred_raw": "@/b/rqodr/tha be ke$v/rha r/hmi n/dar/nd",
+      "before_homograph_hit": false,
+      "after_pred_raw": "@/b/rqodr/tha be ke$v/rha r/hmi n/dar/nd",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test1_before.wav",
+      "after_wav": "output/g2p80_test1_after.wav"
+    },
+    {
+      "id": 2,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "بر فراز اسمان ابری ندیدم",
+      "raw_phoneme_repr1": "bar farAze ?Aseman ?abri nadidam",
+      "target_ge2pe": "b/r f/raze1 @asem/n @/bri n/did/m",
+      "before_pred_raw": "b/r f/raze1 @aseman @/bri n/did/m",
+      "before_homograph_hit": false,
+      "after_pred_raw": "b/r f/raze1 @aseman @/bri n/did/m",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test2_before.wav",
+      "after_wav": "output/g2p80_test2_after.wav"
+    },
+    {
+      "id": 3,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "این اجرها به دلیل قدمت زیاد، ارزش تاریخی دارند.",
+      "raw_phoneme_repr1": "?in ?AjorhA be dalile qedmate ziyAd ?arzeSe tArixi dArand",
+      "target_ge2pe": "@in @ajorha be d/lile1 qedm/te1 ziyad @/rze$e1 tarixi dar/nd",
+      "before_pred_raw": "@in @/jorha be d/lile1 qedm/te1 ziyad @/rze$e1 tarixi dar/nd",
+      "before_homograph_hit": false,
+      "after_pred_raw": "@in @/jorha be d/lile1 qedm/te1 ziyad @/rze$e1 tarixi dar/nd",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test3_before.wav",
+      "after_wav": "output/g2p80_test3_after.wav"
+    },
+    {
+      "id": 4,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "خداوند اجر ادمای خوب را میدهد",
+      "raw_phoneme_repr1": "xodAvand ?ajore ?AdamAye xub rA midahad",
+      "target_ge2pe": "xodav/nd @/jore1 @ad/maye1 xub ra mid/h/d",
+      "before_pred_raw": "xodav/nd @ajore1 @ad/maye1 xub ra mid/h/d",
+      "before_homograph_hit": false,
+      "after_pred_raw": "xodav/nd @ajore1 @ad/maye1 xub ra mid/h/d",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test4_before.wav",
+      "after_wav": "output/g2p80_test4_after.wav"
+    },
+    {
+      "id": 5,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "لطفا بگو این حرفی که زدی کاملا درست بود؟ اره یا نه؟",
+      "raw_phoneme_repr1": "lotfan begu ?in harfi ke zadi kAmelan dorost bud Are yA na.",
+      "target_ge2pe": "lotf/n begu @in h/rfi ke z/di kamel/n dorost bud @are ya n/",
+      "before_pred_raw": "lotf/n begu @in h/rfi ke z/di kamel/n dorost bud @are ya n/",
+      "before_homograph_hit": true,
+      "after_pred_raw": "lotf/n begu @in h/rfi ke z/di kamel/n dorost bud @are ya n/",
+      "after_homograph_hit": true,
+      "before_wav": "output/g2p80_test5_before.wav",
+      "after_wav": "output/g2p80_test5_after.wav"
+    },
+    {
+      "id": 6,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "هرس کردن درختان با اره‌های مخصوص باغبانی انجام می‌شود.",
+      "raw_phoneme_repr1": "haras kardan deraxtAn bA ?arrehAye maxsuse bAqbAni ?anjAm miSavad",
+      "target_ge2pe": "h/r/s k/rd/n der/xtan ba @/rrehaye1 m/xsuse1 baqbani @/njam mi$/v/d",
+      "before_pred_raw": "h/r/s k/rd/n der/xtan ba @/rrehaye m/xsuse1 baqbani @/njam mi$/v/d",
+      "before_homograph_hit": false,
+      "after_pred_raw": "h/r/s k/rd/ne1 der/xtan ba @/rrehaye1 m/xsuse1 baqbani @/njam mi$/v/d",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test6_before.wav",
+      "after_wav": "output/g2p80_test6_after.wav"
+    },
+    {
+      "id": 7,
+      "split_tag": "TRAIN (Seen)",
+      "grapheme": "باغ گیاه‌شناسی سمت پارک جنگلی قرار دارد.",
+      "raw_phoneme_repr1": "bAqe giyAhSenAsi samte pArke jangali qarAr dArad",
+      "target_ge2pe": "baqe1 giyah$enasi s/mte1 parke1 j/ng/li q/rar dar/d",
+      "before_pred_raw": "baqe1 giyah$enasi s/mte1 parke1 j/ng/li q/rar dar/d",
+      "before_homograph_hit": false,
+      "after_pred_raw": "baqe1 giyah$enasi s/mte1 parke1 j/ng/li q/rar dar/d",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test7_before.wav",
+      "after_wav": "output/g2p80_test7_after.wav"
+    },
+    {
+      "id": 8,
+      "split_tag": "TEST (Held-Out)",
+      "grapheme": "جنرال ارشد به سمت فرماندهی نیروهای ناتو منصوب شد",
+      "raw_phoneme_repr1": "jenerAle ?arSad be semate farmAndehiye niruhAye nAto mansub Sod",
+      "target_ge2pe": "jenerale1 @/r$/d be sem/te1 f/rmandehiye1 niruhaye1 nato m/nsub $od",
+      "before_pred_raw": "jenrale1 @/r$/d be s/mte1 f/rmandehiye1 niruhaye nato m/nsub $od",
+      "before_homograph_hit": false,
+      "after_pred_raw": "jenrale1 @/r$/d be s/mte1 f/rmandehiye1 niruhaye1 nato m/nsub $od",
+      "after_homograph_hit": false,
+      "before_wav": "output/g2p80_test8_before.wav",
+      "after_wav": "output/g2p80_test8_after.wav"
+    }
+  ]
+}

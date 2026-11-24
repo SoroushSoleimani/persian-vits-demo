@@ -9,3 +9,4 @@ output/persian_vits_upgraded.pt
 .pytest_cache/
 homo-ge2pe-repo/
 Homo-GE2PE-Persian/
+Dataset for G2P/
