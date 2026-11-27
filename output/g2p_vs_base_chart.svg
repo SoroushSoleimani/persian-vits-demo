@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="440" viewBox="0 0 960 440">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="480" y="34" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#111827">Persian G2P Evaluation: Base vs Upgraded (PER / WER / Accuracy %)</text>
+<rect x="330" y="46" width="14" height="12" rx="2" fill="#ef4444"/>
+<text x="350" y="57" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#374151">Base G2P</text>
+<rect x="450" y="46" width="14" height="12" rx="2" fill="#2563eb"/>
+<text x="470" y="57" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#374151">Upgraded G2P (Norm + Stress/Homograph)</text>
+<line x1="70" y1="345.0" x2="930" y2="345.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="60" y="349.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#6b7280">0%</text>
+<line x1="70" y1="290.0" x2="930" y2="290.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="60" y="294.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#6b7280">20%</text>
+<line x1="70" y1="235.0" x2="930" y2="235.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="60" y="239.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#6b7280">40%</text>
+<line x1="70" y1="180.0" x2="930" y2="180.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="60" y="184.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#6b7280">60%</text>
+<line x1="70" y1="125.0" x2="930" y2="125.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="60" y="129.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#6b7280">80%</text>
+<line x1="70" y1="70.0" x2="930" y2="70.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="60" y="74.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#6b7280">100%</text>
+<line x1="70" y1="345" x2="930" y2="345" stroke="#9ca3af" stroke-width="1.5"/>
+<rect x="103.7" y="266.8" width="34" height="78.2" rx="4" fill="#ef4444"/>
+<text x="120.7" y="260.8" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">28.4%</text>
+<rect x="145.7" y="327.6" width="34" height="17.4" rx="4" fill="#2563eb"/>
+<text x="162.7" y="321.6" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">6.3%</text>
+<text x="141.7" y="367" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">PER (Lower)</text>
+<rect x="247.0" y="113.4" width="34" height="231.6" rx="4" fill="#ef4444"/>
+<text x="264.0" y="107.4" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">84.2%</text>
+<rect x="289.0" y="294.3" width="34" height="50.7" rx="4" fill="#2563eb"/>
+<text x="306.0" y="288.3" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">18.4%</text>
+<text x="285.0" y="367" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">WER (Lower)</text>
+<rect x="390.3" y="246.2" width="34" height="98.8" rx="4" fill="#ef4444"/>
+<text x="407.3" y="240.2" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">35.9%</text>
+<rect x="432.3" y="327.3" width="34" height="17.7" rx="4" fill="#2563eb"/>
+<text x="449.3" y="321.3" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">6.5%</text>
+<text x="428.3" y="367" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">Stressed PER (Lower)</text>
+<rect x="533.7" y="301.6" width="34" height="43.4" rx="4" fill="#ef4444"/>
+<text x="550.7" y="295.6" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">15.8%</text>
+<rect x="575.7" y="120.7" width="34" height="224.3" rx="4" fill="#2563eb"/>
+<text x="592.7" y="114.7" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">81.6%</text>
+<text x="571.7" y="367" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">Word Acc (Higher)</text>
+<rect x="677.0" y="316.0" width="34" height="29.0" rx="4" fill="#ef4444"/>
+<text x="694.0" y="310.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">10.5%</text>
+<rect x="719.0" y="127.9" width="34" height="217.1" rx="4" fill="#2563eb"/>
+<text x="736.0" y="121.9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">79.0%</text>
+<text x="715.0" y="367" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">Stressed Acc (Higher)</text>
+<rect x="820.3" y="317.5" width="34" height="27.5" rx="4" fill="#ef4444"/>
+<text x="837.3" y="311.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">10.0%</text>
+<rect x="862.3" y="70.0" width="34" height="275.0" rx="4" fill="#2563eb"/>
+<text x="879.3" y="64.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#1d4ed8">100.0%</text>
+<text x="858.3" y="367" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">Homograph Acc (Higher)</text>
+</svg>
