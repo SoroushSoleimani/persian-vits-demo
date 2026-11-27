@@ -70,24 +70,42 @@ def _predict_raw_ge2pe(model, tokenizer, texts: List[str], batch_size: int = 16)
 def score_predictions(items: List[Dict[str, str]], raw_preds: List[str]) -> Dict[str, Any]:
     total_chars = 0
     total_char_edits = 0
+    total_st_chars = 0
+    total_st_edits = 0
     total_words = 0
+    total_word_edits = 0
     exact_words = 0
+    stressed_exact_words = 0
+    exact_sentences = 0
     hw_hits = 0
     per_item: List[Dict[str, Any]] = []
 
     for item, raw_p in zip(items, raw_preds):
         ref = item["eval_target"]
-        hyp = canonicalize_repr2_for_eval(raw_p)
+        hyp = canonicalize_repr2_for_eval(raw_p, keep_stress=False)
         edits = levenshtein(ref, hyp)
         total_char_edits += edits
         total_chars += max(1, len(ref))
 
         ref_w = ref.split()
         hyp_w = hyp.split()
-        total_words += len(ref_w)
+        w_edits = levenshtein(ref_w, hyp_w)
+        total_word_edits += w_edits
+        total_words += max(1, len(ref_w))
         for rw, hw in zip(ref_w, hyp_w):
             if rw == hw:
                 exact_words += 1
+        if ref == hyp:
+            exact_sentences += 1
+
+        ref_st = item.get("eval_target_stressed") or ref
+        hyp_st = canonicalize_repr2_for_eval(raw_p, keep_stress=True)
+        st_edits = levenshtein(ref_st, hyp_st)
+        total_st_edits += st_edits
+        total_st_chars += max(1, len(ref_st))
+        for rw_st, hw_st in zip(ref_st.split(), hyp_st.split()):
+            if rw_st == hw_st:
+                stressed_exact_words += 1
 
         hw_eval = item["homograph_eval"]
         hw_hit = hw_eval in hyp_w
@@ -98,6 +116,9 @@ def score_predictions(items: List[Dict[str, str]], raw_preds: List[str]) -> Dict
             {
                 "pred_raw": raw_p,
                 "pred_eval": hyp,
+                "pred_eval_stressed": hyp_st,
+                "per": round(edits / max(1, len(ref)), 4),
+                "wer": round(w_edits / max(1, len(ref_w)), 4),
                 "cer": round(edits / max(1, len(ref)), 4),
                 "homograph_hit": hw_hit,
             }
@@ -106,10 +127,23 @@ def score_predictions(items: List[Dict[str, str]], raw_preds: List[str]) -> Dict
     return {
         "count": len(items),
         "per": round(total_char_edits / max(1, total_chars), 4),
+        "wer": round(total_word_edits / max(1, total_words), 4),
         "word_exact_acc": round(exact_words / max(1, total_words), 4),
+        "sentence_exact_acc": round(exact_sentences / max(1, len(items)), 4),
+        "stressed_per": round(total_st_edits / max(1, total_st_chars), 4),
+        "stressed_word_acc": round(stressed_exact_words / max(1, total_words), 4),
         "homograph_acc": round(hw_hits / max(1, len(items)), 4),
         "homograph_hits": hw_hits,
         "items": per_item,
+    }
+
+
+def compute_delta_vs_base(before_metrics: Dict[str, Any], after_metrics: Dict[str, Any]) -> Dict[str, float]:
+    """Compute metric deltas (after - before) against the base G2P model."""
+    keys = ("per", "wer", "word_exact_acc", "sentence_exact_acc", "stressed_per", "stressed_word_acc", "homograph_acc")
+    return {
+        f"delta_{k}": round(float(after_metrics.get(k, 0.0)) - float(before_metrics.get(k, 0.0)), 4)
+        for k in keys
     }
 
 
@@ -225,7 +259,8 @@ def run_80pct_finetune(
     before_show_metrics = score_predictions(showcase_items, before_show_preds)
     print(
         f"[BEFORE] TestUnseen({len(test_items)}) PER={before_test_metrics['per']:.4f} "
-        f"WordAcc={before_test_metrics['word_exact_acc']:.4f} HomographAcc={before_test_metrics['homograph_acc']:.4f}"
+        f"WER={before_test_metrics['wer']:.4f} WordAcc={before_test_metrics['word_exact_acc']:.4f} "
+        f"StressedAcc={before_test_metrics['stressed_word_acc']:.4f} HomographAcc={before_test_metrics['homograph_acc']:.4f}"
     )
 
     has_onnx = os.path.isfile(onnx_path)
@@ -335,7 +370,8 @@ def run_80pct_finetune(
     after_show_metrics = score_predictions(showcase_items, after_show_preds)
     print(
         f"[AFTER ] TestUnseen({len(test_items)}) PER={after_test_metrics['per']:.4f} "
-        f"WordAcc={after_test_metrics['word_exact_acc']:.4f} HomographAcc={after_test_metrics['homograph_acc']:.4f}"
+        f"WER={after_test_metrics['wer']:.4f} WordAcc={after_test_metrics['word_exact_acc']:.4f} "
+        f"StressedAcc={after_test_metrics['stressed_word_acc']:.4f} HomographAcc={after_test_metrics['homograph_acc']:.4f}"
     )
 
     after_g2p = PersianG2PProsody(piper_config_json_path=mana_cfg_path)
@@ -383,8 +419,10 @@ def run_80pct_finetune(
         "audit_summary": audit_summary,
         "before_test_unseen": {k: v for k, v in before_test_metrics.items() if k != "items"},
         "after_test_unseen": {k: v for k, v in after_test_metrics.items() if k != "items"},
+        "delta_vs_base_test_unseen": compute_delta_vs_base(before_test_metrics, after_test_metrics),
         "before_showcase_summary": {k: v for k, v in before_show_metrics.items() if k != "items"},
         "after_showcase_summary": {k: v for k, v in after_show_metrics.items() if k != "items"},
+        "delta_vs_base_showcase": compute_delta_vs_base(before_show_metrics, after_show_metrics),
         "history": history,
         "showcase_details": [
             {
@@ -394,8 +432,12 @@ def run_80pct_finetune(
                 "raw_phoneme_repr1": item["raw_phoneme_repr1"],
                 "target_ge2pe": item["target_ge2pe"],
                 "before_pred_raw": before_show_metrics["items"][i]["pred_raw"],
+                "before_per": before_show_metrics["items"][i]["per"],
+                "before_wer": before_show_metrics["items"][i]["wer"],
                 "before_homograph_hit": before_show_metrics["items"][i]["homograph_hit"],
                 "after_pred_raw": after_show_metrics["items"][i]["pred_raw"],
+                "after_per": after_show_metrics["items"][i]["per"],
+                "after_wer": after_show_metrics["items"][i]["wer"],
                 "after_homograph_hit": after_show_metrics["items"][i]["homograph_hit"],
                 "before_wav": f"output/g2p80_test{i+1}_before.wav",
                 "after_wav": f"output/g2p80_test{i+1}_after.wav",

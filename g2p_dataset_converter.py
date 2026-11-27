@@ -26,6 +26,25 @@ DEFAULT_CSV_PATH = os.path.join("Dataset for G2P", "homograph_dataset_clean_v2.c
 
 _PUNCT_RE = r"[،؛؟.,!\"«»:\s]+"
 _VOWELS_REPR2 = set("a/eiou")
+_STRESS_MARK = "'"
+
+_UNSTRESSED_CLITICS = {"o", "be", "@/z", "/z", "d/r", "ra", "ke", "ba", "ta", "ya", "v/"}
+_INITIAL_STRESS_ADVERBS = {
+    "حتما", "مثلا", "قطعا", "لطفا", "فعلا", "قبلا", "بعدا", "اصلا",
+    "واقعا", "کاملا", "معمولا", "تقریبا", "احیانا", "خصوصا", "ضمنا",
+    "ظاهرا", "نسبتا", "اولا", "مطمئنا", "اتفاقا", "شخصا", "حالا",
+    "مگر", "خیلی", "اما", "چرا", "اگر", "بله", "البته", "دقت",
+}
+_MAHI_MONTHLY_NEXT = {
+    "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه", "ده",
+    "صد", "هزار", "میلیون", "میلیارد", "تومان", "ریال", "بار", "مرتبه",
+    "یکبار", "چند", "پیش", "قبل", "بعد", "گذشت", "شد", "است",
+}
+_MARDI_ABSTRACT_NEXT = {"و", "را", "است", "نیست", "بود", "دارد"}
+_MARDI_ABSTRACT_PREV = {"از", "با", "بی", "اهل", "نشانه", "درس", "به", "در"}
+_COPULA_2SG_PREV = {"تو", "خیلی", "چقدر", "آیا", "هم", "که", "واقعا", "بسیار"}
+_VALI_NOUN_NEXT = {"فقیه", "امر", "نعمت", "دانش", "خدا", "عصر", "الله"}
+_AQA_VOCATIVE_NEXT = {"جان", "بفرمایید", "ببخشید", "سلام", "لطفا", "گوش"}
 
 _MEDIAL_FIXES: Dict[str, str] = {
     "xeili": "xeyli",
@@ -109,15 +128,132 @@ def convert_word_repr1_to_repr2(pt: str, audit: Dict[str, int] | None = None) ->
             out.append(";")
         elif c == "?":
             out.append("@")
+        elif c in ("'", "ˈ"):
+            out.append(_STRESS_MARK)
         else:
             out.append(c)
 
     res = "".join(out)
-    if res and res[0] in _VOWELS_REPR2 and res != "o":
+    first_phon = res[1:] if res.startswith(_STRESS_MARK) else res
+    if first_phon and first_phon[0] in _VOWELS_REPR2 and first_phon != "o":
         res = "@" + res
         if audit is not None:
             audit["initial_at_injected"] += 1
     return res
+
+
+def _insert_stress_at_vowel(pw: str, vowel_idx: int) -> str:
+    if vowel_idx < 0 or vowel_idx >= len(pw):
+        return pw
+    return pw[:vowel_idx] + _STRESS_MARK + pw[vowel_idx:]
+
+
+def annotate_word_stress_repr2(
+    gw: str,
+    pw: str,
+    prev_gw: str = "",
+    next_gw: str = "",
+    is_sentence_start: bool = False,
+    is_sentence_end: bool = False,
+) -> str:
+    """
+    Inject explicit stress marker `'` before the stressed vowel in a Repr. 2 word.
+    Preserves any human-annotated `'` and disambiguates Persian stress homographs
+    (e.g. ماهی, مردی, خوبی, شیرینی, ولی, سالی, آقا) using sentence context.
+    """
+    if not pw or _STRESS_MARK in pw:
+        return pw
+
+    has_ezafe = pw.endswith("1")
+    core = pw[:-1] if has_ezafe else pw
+    if core in _UNSTRESSED_CLITICS:
+        return pw
+
+    vowel_indices = [i for i, ch in enumerate(core) if ch in _VOWELS_REPR2]
+    if not vowel_indices:
+        return pw
+
+    stem_vowels = vowel_indices
+    if has_ezafe and core.endswith(("ye", "e")) and len(vowel_indices) >= 2:
+        stem_vowels = vowel_indices[:-1]
+
+    if len(stem_vowels) == 1:
+        return _insert_stress_at_vowel(pw, stem_vowels[0])
+
+    # Context-aware Persian Stress Homograph disambiguation
+    stress_idx: int | None = None
+    if gw == "ماهی" and core.endswith("i"):
+        if next_gw in _MAHI_MONTHLY_NEXT or prev_gw in ("هر", "در"):
+            stress_idx = stem_vowels[0]  # m'ahi (monthly / a month)
+        else:
+            stress_idx = stem_vowels[-1]  # mah'i (fish)
+    elif gw == "مردی" and core.endswith("i"):
+        if next_gw in _MARDI_ABSTRACT_NEXT or prev_gw in _MARDI_ABSTRACT_PREV or has_ezafe:
+            stress_idx = stem_vowels[-1]  # m/rd'i (manliness)
+        else:
+            stress_idx = stem_vowels[0]  # m'/rdi (a man, indefinite -i)
+    elif gw == "خوبی" and core.endswith("i"):
+        if prev_gw in _COPULA_2SG_PREV or (is_sentence_end and prev_gw not in ("با", "به", "از", "در")):
+            stress_idx = stem_vowels[0]  # x'ubi (you are good)
+        else:
+            stress_idx = stem_vowels[-1]  # xub'i (goodness)
+    elif gw == "شیرینی" and core.endswith("i"):
+        if prev_gw in _COPULA_2SG_PREV:
+            stress_idx = stem_vowels[-2]  # $ir'ini (you are sweet)
+        else:
+            stress_idx = stem_vowels[-1]  # $irin'i (pastry/sweetness)
+    elif gw == "سالی" and core.endswith("i"):
+        stress_idx = stem_vowels[0]  # s'ali (a year / per year)
+    elif gw == "ولی":
+        if has_ezafe or next_gw in _VALI_NOUN_NEXT:
+            stress_idx = stem_vowels[-1]  # v/l'i (guardian/friend)
+        else:
+            stress_idx = stem_vowels[0]  # v'/li (but)
+    elif gw == "باری":
+        if next_gw == "تعالی":
+            stress_idx = stem_vowels[-1]  # bar'i (Creator)
+        else:
+            stress_idx = stem_vowels[0]  # b'ari (anyway / a load)
+    elif gw == "آقا":
+        if is_sentence_start or next_gw in _AQA_VOCATIVE_NEXT:
+            stress_idx = stem_vowels[0]  # @'aqa (vocative)
+        else:
+            stress_idx = stem_vowels[-1]  # @aq'a (noun)
+    elif gw in _INITIAL_STRESS_ADVERBS:
+        stress_idx = stem_vowels[0]
+    elif core.startswith(("mi", "n/mi", "nemi")):
+        stress_idx = stem_vowels[0]
+    else:
+        stress_idx = stem_vowels[-1]
+
+    return _insert_stress_at_vowel(pw, stress_idx)
+
+
+def annotate_sentence_stress_repr2(grapheme: str, repr2_str: str) -> str:
+    """Apply word-level & context-aware stress homograph `'` tagging to a Repr. 2 sentence."""
+    g_raw = grapheme.replace("ك", "ک").replace("ي", "ی").replace("ى", "ی").strip()
+    g_toks = re.sub(_PUNCT_RE, " ", g_raw.replace("\u200c", "")).strip().split()
+    g_split = re.sub(r"[،؛؟.,!\"«»:\u200c\s]+", " ", g_raw).strip().split()
+    p_toks = [t for t in repr2_str.strip().split() if t]
+    aligned_g = g_toks if len(g_toks) == len(p_toks) else (g_split if len(g_split) == len(p_toks) else [])
+
+    out: List[str] = []
+    n = len(p_toks)
+    for idx, pw in enumerate(p_toks):
+        gw = aligned_g[idx] if idx < len(aligned_g) else ""
+        prev_gw = aligned_g[idx - 1] if (aligned_g and idx > 0) else ""
+        next_gw = aligned_g[idx + 1] if (aligned_g and idx + 1 < len(aligned_g)) else ""
+        out.append(
+            annotate_word_stress_repr2(
+                gw,
+                pw,
+                prev_gw=prev_gw,
+                next_gw=next_gw,
+                is_sentence_start=(idx == 0),
+                is_sentence_end=(idx == n - 1),
+            )
+        )
+    return " ".join(out)
 
 
 def realign_enclitic_o_and_compounds(
@@ -149,9 +285,16 @@ def realign_enclitic_o_and_compounds(
 
 
 def convert_sentence_repr1_to_repr2(
-    grapheme: str, phoneme: str, audit: Dict[str, int] | None = None
+    grapheme: str,
+    phoneme: str,
+    audit: Dict[str, int] | None = None,
+    include_stress: bool = False,
 ) -> Tuple[str, bool]:
-    """Convert a full Repr. 1 sentence into Repr. 2 (`Homo-GE2PE`), returning `(repr2_str, is_aligned)`."""
+    """Convert a full Repr. 1 sentence into Repr. 2 (`Homo-GE2PE`), returning `(repr2_str, is_aligned)`.
+
+    When `include_stress=True`, also annotates explicit `'` stress markers (including Persian
+    stress homographs) for ByT5 fine-tuning.
+    """
     g_raw = grapheme.replace("ك", "ک").replace("ي", "ی").replace("ى", "ی").strip()
     g_raw_toks = re.sub(r"[،؛.,!\"«»:\s]+", " ", g_raw.replace("\u200c", "")).strip().split()
     g_toks = re.sub(_PUNCT_RE, " ", g_raw.replace("\u200c", "")).strip().split()
@@ -195,12 +338,18 @@ def convert_sentence_repr1_to_repr2(
                 if audit is not None:
                     audit["ezafe_ye1_added"] += 1
 
-    return " ".join(tok for tok in out_toks if tok), is_aligned
+    result_str = " ".join(tok for tok in out_toks if tok)
+    if include_stress and result_str:
+        result_str = annotate_sentence_stress_repr2(grapheme, result_str)
+    return result_str, is_aligned
 
 
-def canonicalize_repr2_for_eval(phon: str) -> str:
-    """Normalize Repr. 2 strings for evaluation, preserving `@` and `C` while stripping only `1` and punctuation."""
-    toks = re.sub(_PUNCT_RE, " ", phon).strip().split()
+def canonicalize_repr2_for_eval(phon: str, keep_stress: bool = False) -> str:
+    """Normalize Repr. 2 strings for evaluation, preserving `@` and `C`, stripping `1` and punctuation."""
+    s = phon.replace("ˈ", _STRESS_MARK)
+    if not keep_stress:
+        s = s.replace(_STRESS_MARK, "")
+    toks = re.sub(_PUNCT_RE, " ", s).strip().split()
     return " ".join(tok[:-1] if tok.endswith("1") else tok for tok in toks if tok)
 
 
@@ -231,6 +380,7 @@ def build_80_20_dataset(
     seed: int = 42,
     audit_out_path: str | None = None,
     split_mode: str = "word_lemma",
+    include_stress: bool = True,
 ) -> Tuple[List[Dict[str, str]], List[Dict[str, str]], List[Dict[str, str]], Dict[str, Any]]:
     """Build 80% Train / 20% Held-Out Unseen Test split from human-labeled rows only.
 
@@ -269,7 +419,9 @@ def build_80_20_dataset(
             continue
         seen_graphemes.add(g_norm)
 
-        target_repr2, is_aligned = convert_sentence_repr1_to_repr2(g_orig, p_orig, audit=audit)
+        target_repr2, is_aligned = convert_sentence_repr1_to_repr2(
+            g_orig, p_orig, audit=audit, include_stress=include_stress
+        )
         if not is_aligned:
             audit["skipped_unaligned_after_recovery"] += 1
             continue
@@ -280,10 +432,11 @@ def build_80_20_dataset(
             "input_text": g_norm,
             "raw_phoneme_repr1": p_orig,
             "target_ge2pe": target_repr2,
-            "eval_target": canonicalize_repr2_for_eval(target_repr2),
+            "eval_target": canonicalize_repr2_for_eval(target_repr2, keep_stress=False),
+            "eval_target_stressed": canonicalize_repr2_for_eval(target_repr2, keep_stress=True),
             "homograph_grapheme": hw_g,
             "homograph_phoneme": hw_p,
-            "homograph_eval": canonicalize_repr2_for_eval(hw_repr2),
+            "homograph_eval": canonicalize_repr2_for_eval(hw_repr2, keep_stress=False),
         }
         by_hw[hw_g][hw_p].append(item)
         audit["clean_converted_sentences"] += 1

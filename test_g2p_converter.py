@@ -7,6 +7,7 @@ import unittest
 
 from g2p_dataset_converter import (
     DEFAULT_CSV_PATH,
+    annotate_sentence_stress_repr2,
     build_80_20_dataset,
     canonicalize_repr2_for_eval,
     convert_sentence_repr1_to_repr2,
@@ -51,6 +52,29 @@ class TestG2PDatasetConverter(unittest.TestCase):
         self.assertIn("پانزدهم آبان هزار و چهارصد و سه", out)
         self.assertIn("بیست و پنج درصد", out)
         self.assertIn("می\u200cرود", out)
+
+    def test_stress_homograph_annotation_and_eval(self):
+        # ماهی: fish (mah'i) vs monthly (m'ahi)
+        s_fish = annotate_sentence_stress_repr2("ماهی قرمز در آب است", "mahi qermez d/r @ab @/st")
+        s_monthly = annotate_sentence_stress_repr2("ماهی دو میلیون تومان میگیرد", "mahi do miliyun toman migir/d")
+        self.assertIn("mah'i", s_fish)
+        self.assertIn("m'ahi", s_monthly)
+
+        # مردی: a man (m'/rdi) vs manliness (m/rd'i)
+        s_a_man = annotate_sentence_stress_repr2("مردی از دور آمد", "m/rdi @/z dur @am/d")
+        s_manliness = annotate_sentence_stress_repr2("از مردی و غیرت او گفتند", "@/z m/rdi o qeyr/te1 @u goft/nd")
+        self.assertIn("m'/rdi", s_a_man)
+        self.assertIn("m/rd'i", s_manliness)
+
+        # ولی: conjunction (v'/li) vs guardian (v/l'i)
+        s_but = annotate_sentence_stress_repr2("ولی او نیامد", "v/li @u n/yam/d")
+        s_guardian = annotate_sentence_stress_repr2("ولی فقیه", "v/li1 f/qih")
+        self.assertIn("v'/li", s_but)
+        self.assertIn("v/l'i1", s_guardian)
+
+        # canonicalize_repr2_for_eval: keep_stress=False strips ', keep_stress=True preserves '
+        self.assertEqual(canonicalize_repr2_for_eval("m'ahi", keep_stress=False), "mahi")
+        self.assertEqual(canonicalize_repr2_for_eval("m'ahi", keep_stress=True), "m'ahi")
 
     def test_word_lemma_split_disjoint(self):
         rows = [

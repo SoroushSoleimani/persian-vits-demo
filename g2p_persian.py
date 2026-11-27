@@ -585,13 +585,14 @@ class PersianG2PProsody:
     def _ge2pe_word_to_pairs(
         self, token: str, is_final_question_word: bool = False
     ) -> List[Tuple[str, int]]:
-        """Convert one Homo-GE2PE token (e.g. 'k/r/m1', '$/kki', 'h/tm/n') to (IPA, prosody_tag) pairs."""
+        """Convert one Homo-GE2PE token (e.g. 'k/r/m1', '$/kki', 'h/tm/n', "m'ahi", "mah'i") to (IPA, prosody_tag) pairs."""
         trailing_punct = []
         core = token
-        while core and core[-1] in set("!'(),-.:;?،؛؟\"»«"):
+        strip_punct = set("!(),-.:;?،؛؟\"»«")
+        while core and core[-1] in strip_punct:
             trailing_punct.insert(0, core[-1])
             core = core[:-1]
-        while core and core[0] in set("!'(),-.:;?،؛؟\"»«"):
+        while core and core[0] in strip_punct:
             core = core[1:]
 
         has_ezafe = False
@@ -604,10 +605,23 @@ class PersianG2PProsody:
         if core.endswith("@") and len(core) > 1:
             core = core[:-1]
 
-        chars = list(core)
+        # Extract optional explicit stress marker (`'` or `ˈ`) from Homo-GE2PE output
+        explicit_stress_char_pos = -1
+        chars: List[str] = []
+        pending_stress = False
+        for raw_ch in core:
+            if raw_ch in ("'", "ˈ"):
+                pending_stress = True
+                continue
+            if pending_stress and raw_ch in GE2PE_VOWEL_CHARS:
+                explicit_stress_char_pos = len(chars)
+                pending_stress = False
+            chars.append(raw_ch)
+        clean_core = "".join(chars)
+
         vowel_indices = [i for i, ch in enumerate(chars) if ch in GE2PE_VOWEL_CHARS]
         stem_vowels = vowel_indices
-        if has_ezafe and core.endswith(("ye", "e")) and len(vowel_indices) >= 2:
+        if has_ezafe and clean_core.endswith(("ye", "e")) and len(vowel_indices) >= 2:
             stem_vowels = vowel_indices[:-1]
         last_vowel_idx = stem_vowels[-1] if stem_vowels else (vowel_indices[-1] if vowel_indices else -1)
         unstressed_clitics = {"o", "be", "/z", "d/r", "ra", "ke", "ba", "ta", "ya"}
@@ -619,10 +633,12 @@ class PersianG2PProsody:
             "v/li", "/mma", "cera", "/g/r", "b/le", "/lb/tte",
             "s/fid", "b/rge", "b/rgeye", "motm/@enn/n",
         }
-        if not vowel_indices or core in unstressed_clitics:
+        if explicit_stress_char_pos != -1:
+            stress_vowel_idx = explicit_stress_char_pos
+        elif not vowel_indices or clean_core in unstressed_clitics:
             stress_vowel_idx = -1
         elif len(stem_vowels) >= 2 and (
-            core in initial_stress_cores or core.startswith(("mi", "n/mi", "nemi"))
+            clean_core in initial_stress_cores or clean_core.startswith(("mi", "n/mi", "nemi"))
         ):
             stress_vowel_idx = stem_vowels[0]
         else:
@@ -792,6 +808,31 @@ class PersianG2PProsody:
                     ge2pe_tok = "sem/t1" if next_w in ("ریاست", "مدیریت") else "sem/t"
             elif tok == "معلم":
                 ge2pe_tok = "mo@/llem1" if next_w in ("مدرسه", "خوب") else "mo@/llem"
+            elif tok == "ماهی":
+                if next_w in ("یک", "دو", "سه", "چهار", "پنج", "میلیون", "تومان", "بار", "یکبار", "پیش", "قبل"):
+                    ge2pe_tok = "m'ahi"
+                else:
+                    ge2pe_tok = "mah'i"
+            elif tok == "مردی":
+                if next_w in ("و", "را", "است", "نیست") or prev_w in ("از", "با", "بی", "اهل"):
+                    ge2pe_tok = "m/rd'i"
+                else:
+                    ge2pe_tok = "m'/rdi"
+            elif tok == "خوبی":
+                if prev_w in ("تو", "خیلی", "چقدر", "آیا"):
+                    ge2pe_tok = "x'ubi"
+                else:
+                    ge2pe_tok = "xub'i"
+            elif tok == "شیرینی":
+                if prev_w in ("تو", "خیلی", "چقدر"):
+                    ge2pe_tok = "$ir'ini"
+                else:
+                    ge2pe_tok = "$irin'i"
+            elif tok == "ولی":
+                if next_w in ("فقیه", "امر", "نعمت", "دانش"):
+                    ge2pe_tok = "v/l'i1"
+                else:
+                    ge2pe_tok = "v'/li"
             elif tok in base_words:
                 ge2pe_tok = base_words[tok]
 

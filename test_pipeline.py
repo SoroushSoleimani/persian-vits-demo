@@ -83,6 +83,27 @@ class TestPersianG2PAlignment(unittest.TestCase):
         self.assertIn("هجری شمسی", norm)
         self.assertTrue(norm.endswith("؟"))
 
+    def test_explicit_stress_homograph_in_g2p(self):
+        # Direct explicit `'` marker overrides fixed final-syllable stress rule
+        self.assertEqual(self._word_ipa("m'ahi"), "mˈɑhi")
+        self.assertEqual(self._word_ipa("mah'i"), "mɑhˈi")
+        self.assertEqual(self._word_ipa("m'/rdi"), "mˈardi")
+        self.assertEqual(self._word_ipa("m/rd'i"), "mardˈi")
+        self.assertEqual(self._word_ipa("v'/li"), "vˈali")
+        self.assertEqual(self._word_ipa("v/l'i"), "valˈi")
+
+        # Context-aware fallback end-to-end produces distinct IPA stress placement
+        syms_fish, _, tags_fish, _, _ = self.g2p.text_to_aligned_streams_with_context(
+            "ماهی قرمز بود.", intersperse_blank=False, prefer_homo_ge2pe=False
+        )
+        syms_month, _, tags_month, _, _ = self.g2p.text_to_aligned_streams_with_context(
+            "ماهی دو بار رفت.", intersperse_blank=False, prefer_homo_ge2pe=False
+        )
+        self.assertIn("mɑhˈi", "".join(syms_fish))
+        self.assertIn("mˈɑhi", "".join(syms_month))
+        self.assertIn(PROSODY_TAGS["STRESS"], tags_fish)
+        self.assertIn(PROSODY_TAGS["STRESS"], tags_month)
+
 
 @unittest.skipUnless(HAS_TORCH, "PyTorch required for neural architecture tests")
 class TestUpgradedPersianVits(unittest.TestCase):

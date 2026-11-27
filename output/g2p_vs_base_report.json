@@ -1,0 +1,135 @@
+{
+  "base_g2p": {
+    "count": 10,
+    "per": 0.2842,
+    "wer": 0.8421,
+    "word_exact_acc": 0.1579,
+    "sentence_exact_acc": 0.0,
+    "stressed_per": 0.3594,
+    "stressed_word_acc": 0.1053,
+    "homograph_acc": 0.1,
+    "homograph_hits": 1
+  },
+  "upgraded_g2p": {
+    "count": 10,
+    "per": 0.0632,
+    "wer": 0.1842,
+    "word_exact_acc": 0.8158,
+    "sentence_exact_acc": 0.3,
+    "stressed_per": 0.0645,
+    "stressed_word_acc": 0.7895,
+    "homograph_acc": 1.0,
+    "homograph_hits": 10
+  },
+  "delta_vs_base": {
+    "delta_per": -0.221,
+    "delta_wer": -0.6579,
+    "delta_word_exact_acc": 0.6579,
+    "delta_sentence_exact_acc": 0.3,
+    "delta_stressed_per": -0.2949,
+    "delta_stressed_word_acc": 0.6842,
+    "delta_homograph_acc": 0.9
+  },
+  "samples": [
+    {
+      "id": "1",
+      "category": "Stress Homograph (ماهی: fish)",
+      "text": "ماهی قرمز بود.",
+      "target_word_ipa": "mɑhˈi",
+      "base_ipa": "mɑhi q1rmz bvd",
+      "base_hit": false,
+      "upgraded_ipa": "mɑhˈi q1rmz bˈud",
+      "upgraded_hit": true
+    },
+    {
+      "id": "2",
+      "category": "Stress Homograph (ماهی: monthly)",
+      "text": "ماهی دو بار رفت.",
+      "target_word_ipa": "mˈɑhi",
+      "base_ipa": "mɑhi dv bɑr rft",
+      "base_hit": false,
+      "upgraded_ipa": "mˈɑhi dv bɑr rˈaft",
+      "upgraded_hit": true
+    },
+    {
+      "id": "3",
+      "category": "Stress Homograph (مردی: a man)",
+      "text": "مردی از دور رفت.",
+      "target_word_ipa": "mˈardi",
+      "base_ipa": "mrdi ɑz dvr rft",
+      "base_hit": false,
+      "upgraded_ipa": "mˈardi az dvr rˈaft",
+      "upgraded_hit": true
+    },
+    {
+      "id": "4",
+      "category": "Stress Homograph (مردی: manliness)",
+      "text": "از مردی و محبت او",
+      "target_word_ipa": "mardˈi",
+      "base_ipa": "ɑz mrdi v mhbt ɑv",
+      "base_hit": false,
+      "upgraded_ipa": "az mardˈi o mohabbˈat ɑv",
+      "upgraded_hit": true
+    },
+    {
+      "id": "5",
+      "category": "Stress Homograph (ولی: conjunction)",
+      "text": "ولی او خوب بود.",
+      "target_word_ipa": "vˈali",
+      "base_ipa": "vli ɑv xˈub bvd",
+      "base_hit": false,
+      "upgraded_ipa": "vˈali ɑv xˈub bˈud",
+      "upgraded_hit": true
+    },
+    {
+      "id": "6",
+      "category": "Stress Homograph (ولی: guardian)",
+      "text": "ولی فقیه",
+      "target_word_ipa": "valˈi",
+      "base_ipa": "vli fq1ih",
+      "base_hit": false,
+      "upgraded_ipa": "valˈije fq1ih",
+      "upgraded_hit": true
+    },
+    {
+      "id": "7",
+      "category": "Phoneme Homograph (کرم: karam vs kerm)",
+      "text": "کرم مرد بزرگ",
+      "target_word_ipa": "karˈame",
+      "base_ipa": "krm mrd bzrɡ",
+      "base_hit": false,
+      "upgraded_ipa": "karˈame mˈarde bozˈorɡ",
+      "upgraded_hit": true
+    },
+    {
+      "id": "8",
+      "category": "Phoneme Homograph (کرم: worm)",
+      "text": "کرم کوچک روی برگ درخت بود.",
+      "target_word_ipa": "kˈerme",
+      "base_ipa": "krm kvtʃk rvi brɡ drxt bvd",
+      "base_hit": false,
+      "upgraded_ipa": "kˈerme kutʃˈak rujˈe bˈarɡe derˈaxt bˈud",
+      "upgraded_hit": true
+    },
+    {
+      "id": "9",
+      "category": "Phoneme Homograph (مهر: mohr vs mehr)",
+      "text": "مهر استاد دانشگاه",
+      "target_word_ipa": "mˈohre",
+      "base_ipa": "mhr ɑstɑd dɑnʃɡɑh",
+      "base_hit": false,
+      "upgraded_ipa": "mˈohre ostˈɑde dɑneʃɡˈɑh",
+      "upgraded_hit": true
+    },
+    {
+      "id": "10",
+      "category": "Tanvin + Tashdid",
+      "text": "حتما با دقت رفت.",
+      "target_word_ipa": "hˈatman",
+      "base_ipa": "hˈatman bɑ dˈeq1q1at rft",
+      "base_hit": true,
+      "upgraded_ipa": "hˈatman bɑ dˈeq1q1at rˈaft",
+      "upgraded_hit": true
+    }
+  ]
+}
